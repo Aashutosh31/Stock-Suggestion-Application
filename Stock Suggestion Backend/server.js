@@ -2,11 +2,16 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import "dotenv/config";
+import authRoutes from "./routes/auth.js"; // Import the new route
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// --- ROUTES ---
+app.use('/api/auth', authRoutes); // Use the authentication routes
+// --------------
 
 app.get("/", (req,res)=>res.send("API is running..."));
 

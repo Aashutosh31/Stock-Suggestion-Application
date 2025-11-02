@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate } from 'react-router-dom';
 
 // Base URL for the backend API
 const API_BASE_URL = 'http://localhost:5000'; 
@@ -11,6 +11,7 @@ const Login = () => {
         email: '',
         password: '',
     });
+    const navigate = useNavigate();
 
     const { email, password } = formData;
 
@@ -33,7 +34,7 @@ const Login = () => {
                 toast.success(`Welcome back, ${data.user.name}!`);
                 // Successful login - In a real app, save token and redirect
                 console.log("Login successful. Token:", data.token);
-                // navigate('/dashboard'); 
+                 navigate('/dashboard'); 
             } else {
                 // Show specific backend errors (e.g., 'Invalid Credentials')
                 toast.error(data.msg || 'Login failed. Please check your details.');

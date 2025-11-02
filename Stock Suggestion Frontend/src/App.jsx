@@ -1,28 +1,40 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast'; 
-import Register from './components/Register.jsx'; 
-import Login from './components/Login.jsx'; // Imported the Login component
+import { ThemeProvider } from './context/ThemeContext'; // 1. Import ThemeProvider
+import Register from './components/Register'; 
+import Login from './components/Login';       
+import Dashboard from './pages/Dashboard';    // 2. Import Dashboard
+import DashboardLayout from './layout/DashboardLayout'; // 3. Import Layout
 
 const App = () => {
-  // A dark background for the "modern aesthetic and extraordinary" UI/UX
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-900 text-white">
-        {/* Global Toast Notification Container for "god level" user feedback */}
-        <Toaster position="top-center" reverseOrder={false} /> 
-        
-        <Routes>
-          {/* Default route for the entry point - set to Login */}
-          <Route path="/" element={<Login />} /> 
-          <Route path="/register" element={<Register />} />
-          {/* Explicit route for Login */}
-          <Route path="/login" element={<Login />} /> 
-          {/* Dashboard placeholder - Next steps will focus on this */}
-          <Route path="/dashboard" element={<div className="text-center pt-20 text-3xl text-cyan-500">Welcome to the Dashboard!</div>} />
-        </Routes>
-      </div>
-    </Router>
+    // 4. Wrap with ThemeProvider
+    <ThemeProvider>
+        <Router>
+          {/* Apply base background with theme transition */}
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+            {/* Global Toast Notification Container */}
+            <Toaster position="top-center" reverseOrder={false} /> 
+            
+            <Routes>
+              {/* Auth Routes */}
+              <Route path="/" element={<Login />} /> 
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} /> 
+              
+              {/* Main App Routes */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Other pages from Step 2 */}
+              <Route path="/trends" element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Trends Analysis Page</div></DashboardLayout>} />
+              <Route path="/sections" element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Other Sections Page</div></DashboardLayout>} />
+              <Route path="/settings" element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Settings Page</div></DashboardLayout>} />
+
+            </Routes>
+          </div>
+        </Router>
+    </ThemeProvider>
   );
 };
 

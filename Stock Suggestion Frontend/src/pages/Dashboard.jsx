@@ -1,5 +1,6 @@
 import React from 'react';
 import DashboardLayout from '../layout/DashboardLayout';
+import StockChart from '../components/StockChart';
 
 const Dashboard = () => {
   return (

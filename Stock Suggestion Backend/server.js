@@ -3,6 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import "dotenv/config";
 import authRoutes from "./routes/auth.js"; // Import the new route
+import stockRoutes from "./routes/stocks.js"
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 
 // --- ROUTES ---
 app.use('/api/auth', authRoutes); // Use the authentication routes
+app.use('/api/stocks',stockRoutes);
 // --------------
 
 app.get("/", (req,res)=>res.send("API is running..."));

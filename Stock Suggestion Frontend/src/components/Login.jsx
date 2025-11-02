@@ -18,7 +18,7 @@ const Login = () => {
     const onChange = e => 
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const onSubmit = async (e) => {
+const onSubmit = async (e) => {
         e.preventDefault();
 
         try {
@@ -32,9 +32,14 @@ const Login = () => {
 
             if (res.ok) {
                 toast.success(`Welcome back, ${data.user.name}!`);
-                // Successful login - In a real app, save token and redirect
-                console.log("Login successful. Token:", data.token);
-                 navigate('/dashboard'); 
+                
+                // 🔥 CRITICAL FIX: SAVE THE JWT TOKEN
+                if (data.token) {
+                    localStorage.setItem('token', data.token); 
+                    console.log("Login successful. Token saved.");
+                }
+                
+                navigate('/dashboard'); 
             } else {
                 // Show specific backend errors (e.g., 'Invalid Credentials')
                 toast.error(data.msg || 'Login failed. Please check your details.');

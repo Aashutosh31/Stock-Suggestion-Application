@@ -12,7 +12,10 @@ const Dashboard = () => {
         <p className="text-lg dark:text-gray-400 text-gray-600">
           Welcome to your highly accurate Stock Suggestion Application.
         </p>
-        
+
+        {/* 🔥 INSERTED THE STOCK CHART COMPONENT HERE */}
+        <StockChart />
+
         {/* Placeholder for the main features using the proposal content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card title="Current Trends" content="Analyse Market Trends and also what is currently going on in the market." />

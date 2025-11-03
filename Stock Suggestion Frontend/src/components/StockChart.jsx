@@ -2,7 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'; 
 import useStockData from '../hooks/useStockData';
 import { useTheme } from '../context/ThemeContext';
-import { useRealtimeUpdates } from '../hooks/useRealtimeUpdates'; // Import the real-time hook
+// import { useRealtimeUpdates } from '../hooks/useRealtimeUpdates'; // --- 1. REMOVED THIS LINE ---
 
 // Custom Tooltip (Final, Robust Implementation)
 const CustomTooltip = ({ active, payload, label }) => {
@@ -38,13 +38,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 
-const StockChart = () => {
+const StockChart = ({ symbol = "RELIANCE" }) => { // Use a default prop
     // 1. Initial data fetch using react-query
-    const { data, isLoading, isError, error } = useStockData('RELIANCE');
+    const { data, isLoading, isError, error } = useStockData(symbol);
     const { theme } = useTheme();
 
-    // 2. Establish WebSocket connection and listen for updates
-    useRealtimeUpdates();
+    // --- 2. REMOVED THE useRealtimeUpdates() HOOK CALL ---
 
     // 3. Handle Loading State
     if (isLoading) {
@@ -53,7 +52,7 @@ const StockChart = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Fetching Live/Simulated Stock Data...
+            Fetching Real Stock Data...
         </div>;
     }
 
@@ -70,10 +69,10 @@ const StockChart = () => {
     }
 
     // 6. Data is ready, destructure it
-    const { symbol, name, data: chartData, ai_analysis } = data;
+    const { name, data: chartData, ai_analysis } = data;
     const isDarkMode = theme === 'dark';
     
-    // This logic is now robust as our data source (backend mock or live tick) provides OHLC
+    // This logic is now robust as our data source (backend) provides OHLC
     const getBarColor = (data) => {
         return data.Close >= data.Open ? '#34D399' : '#EF4444'; // Green or Red
     };
@@ -84,19 +83,18 @@ const StockChart = () => {
             {/* Header and AI Suggestion */}
             <div className="flex justify-between items-center border-b dark:border-gray-700 pb-4">
                 <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-green-500">
-                    {name} ({symbol})
+                    {name} ({data.symbol})
                 </h2>
                 <div className={`p-2 rounded-lg font-bold text-sm ${
-                    ai_analysis.suggestion.includes('Strong Buy') ? 'bg-green-600 text-white' : 
-                    ai_analysis.suggestion.includes('Buy') ? 'bg-green-500 text-white' : 
-                    ai_analysis.suggestion.includes('Sell') ? 'bg-red-600 text-white' :
+                    ai_analysis.suggestion.includes('Uptrend') ? 'bg-green-600 text-white' : 
+                    ai_analysis.suggestion.includes('Downtrend') ? 'bg-red-600 text-white' :
                     'bg-yellow-500 text-gray-900'
                 }`}>
                     AI Suggestion: {ai_analysis.suggestion}
                 </div>
             </div>
 
-            {/* AI Analysis and Risk Panel (These values will update live via WebSocket) */}
+            {/* AI Analysis and Risk Panel (These values are from the polled data) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center dark:text-gray-300">
                 <div className="dark:bg-gray-700 bg-gray-100 p-4 rounded-lg">
                     <p className="text-sm text-gray-500 dark:text-gray-400">Latest Close Price</p>
@@ -114,10 +112,11 @@ const StockChart = () => {
 
 
             {/* Responsive Chart Container */}
+            {/* This container div is what recharts was warning about. It's fixed in your file. */}
             <div className="w-full h-96 min-w-0"> 
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                        data={chartData} // This data is now live-updated via react-query
+                        data={chartData} 
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
@@ -146,6 +145,7 @@ const StockChart = () => {
                     </BarChart>
                 </ResponsiveContainer>
             </div>
+            {/* --- 3. UPDATED THIS TEXT --- */}
             <p className="text-sm text-center dark:text-gray-500">
                 Displaying real, polled data from Alpha Vantage (100-day).
             </p>

@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'; // Make sure to npm install node-fetch if not already present
+import fetch from 'node-fetch'; // You may need to run: npm install node-fetch
 import "dotenv/config";
 
 const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
@@ -40,7 +40,7 @@ export const getRealStockData = async (req, res) => {
     
     // We must append .BSE or .NSE for Indian stocks for Alpha Vantage
     // This is a simplification; a production system would have a search/lookup service.
-    // Let's assume '.BSE' for now as it's common (e.g., RELIANCE.BSE, TCS.BSE)
+    // Let's assume '.BSE' for now (e.g., RELIANCE.BSE, TCS.BSE)
     const avSymbol = `${symbol.toUpperCase()}.BSE`;
 
     try {
@@ -70,7 +70,7 @@ export const getRealStockData = async (req, res) => {
 
         res.json({
             symbol: metaData['2. Symbol'],
-            name: `Real Data for ${symbol}`, // We don't get the full name from this endpoint
+            name: `${symbol.toUpperCase()}`, // Simple name
             data: transformedData,
             ai_analysis: {
                 latest_price: latestData.Close,

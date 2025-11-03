@@ -29,8 +29,9 @@ mongoose.connect(process.env.MONGO_URL)
         console.log(`API Server running on port ${process.env.PORT || 5000}`)
     );
 
-    // 2. Pass the HTTP server instance to our WebSocket service
-    initWebSocketServer(server);
+  // --- DISABLE MOCK SIMULATION ---
+    // initWebSocketServer(server); 
+    console.log("WebSocket simulation is OFF. Serving real data via HTTP polling.");
 
   })
   .catch(console.error);

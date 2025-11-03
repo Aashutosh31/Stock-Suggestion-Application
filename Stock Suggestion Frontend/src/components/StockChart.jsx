@@ -147,7 +147,7 @@ const StockChart = () => {
                 </ResponsiveContainer>
             </div>
             <p className="text-sm text-center dark:text-gray-500">
-                **Live Data Pipeline** is active. Price and trend will update every 5 seconds.
+                Displaying real, polled data from Alpha Vantage (100-day).
             </p>
         </div>
     );

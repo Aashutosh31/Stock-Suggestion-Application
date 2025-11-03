@@ -1,33 +1,48 @@
-import React from 'react';
-import { useParams } from 'react-router-dom'; // Import useParams
+import React, { useState } from 'react'; // Import useState
 import DashboardLayout from '../layout/DashboardLayout';
 import StockChart from '../components/StockChart';
-import TickerSearch from '../components/TickerSearch'; // NEW IMPORT
 
 const Dashboard = () => {
-  // Get the stock symbol from the URL parameter (e.g., /stock/RELIANCE)
-  const { symbol } = useParams(); 
-  const defaultSymbol = symbol ? symbol.toUpperCase() : 'RELIANCE'; 
+  // Add state to control the selected stock
+  const [selectedSymbol, setSelectedSymbol] = useState('RELIANCE');
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 p-6">
-        {/* Header with Ticker Search */}
-        <header className="flex flex-col sm:flex-row justify-between items-center pb-4 border-b border-gray-700/50">
-            <h1 className="text-4xl font-extrabold dark:text-white text-gray-900 mb-4 sm:mb-0">
-              Stock Detail View
-            </h1>
-            <TickerSearch initialSymbol={defaultSymbol} /> 
-        </header>
+      <div className="space-y-6 space-x-0 md:space-x-6 md:space-y-0 p-6">
+        <h1 className="text-3xl font-extrabold dark:text-white text-gray-900">
+          Main Dashboard
+        </h1>
+        
+        {/* Simple UI to change the selected stock */}
+        <div className="flex gap-4 my-4">
+          <button 
+            onClick={() => setSelectedSymbol('RELIANCE')}
+            className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'RELIANCE' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
+          >
+            RELIANCE
+          </button>
+          <button 
+            onClick={() => setSelectedSymbol('TCS')}
+            className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'TCS' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
+          >
+            TCS
+          </button>
+          <button 
+            onClick={() => setSelectedSymbol('INFY')}
+            className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'INFY' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
+          >
+            INFY
+          </button>
+        </div>
 
-        {/* Pass the dynamic symbol to the StockChart component */}
-        <StockChart symbol={defaultSymbol} /> 
+        {/* Pass the selected symbol as a prop to the chart component */}
+        <StockChart symbol={selectedSymbol} />
 
-        {/* Placeholder cards remain for consistency and structure */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card title="Current Trends" content="Analyse market trends and identify long-term patterns based on technical indicators." />
-          <Card title="Risk Assessment" content="Evaluate volatility and potential downside exposure before making an investment." />
-          <Card title="Profit Maximization" content="Review historical performance to set optimal entry and exit points for high profit margin." />
+        {/* Placeholder for the main features */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card title="Current Trends" content="Analyse Market Trends and also what is currently going on in the market." />
+          <Card title="Risk Assessment" content="Suggest Potential risks and ups and downs as well." />
+          <Card title="Stock Suggestions" content="Suggest the best possible ones to buy and profit margin." />
         </div>
       </div>
     </DashboardLayout>

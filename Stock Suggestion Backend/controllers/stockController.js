@@ -1,87 +1,65 @@
 import fetch from 'node-fetch'; 
 import "dotenv/config";
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-const API_URL = 'https://www.alphavantage.co/query';
+// 1. Use the new API Key and URL
+const API_KEY = process.env.EOD_API_KEY;
+const API_URL = 'https://eodhistoricaldata.com/api/eod/';
 
-const transformAlphaVantageData = (avData) => {
-    const timeSeries = avData['Time Series (Daily)'];
-    if (!timeSeries) {
-        console.error("Error: 'Time Series (Daily)' key not found in Alpha Vantage response.");
-        throw new Error('Invalid data format from Alpha Vantage. Check API key or symbol.');
-    }
-    const chartData = Object.entries(timeSeries)
-        .map(([date, values]) => ({
-            date: date,
-            Open: parseFloat(values['1. open']),
-            High: parseFloat(values['2. high']),
-            Low: parseFloat(values['3. low']),
-            Close: parseFloat(values['4. close']),
-            Volume: parseInt(values['5. volume'], 10),
-        }))
-        .reverse();
-    return chartData.slice(-100);
-};
+// 2. We no longer need the old transform function. This file is now simpler.
 
+// @route   GET /api/stocks/real/:symbol
+// @desc    Get REAL stock data from EOD Historical Data
+// @access  Private (Requires JWT)
 export const getRealStockData = async (req, res) => {
+    const { symbol } = req.params;
     
-    // const { symbol } = req.params; // <-- We are ignoring the 'RELIANCE' request for this test
-
-    // =================================================================
-    // === TEST: Hardcode a free US stock (IBM) ========================
-    // =================================================================
-    // We will fetch 'IBM' instead of 'RELIANCE.NSE' to prove the API key works.
-    const symbol = "IBM";
-    const avSymbol = "IBM"; // US stocks don't need an exchange suffix
-    console.log(`--- DEBUG: Forcing fetch for US stock: ${avSymbol} ---`);
-    // =================================================================
+    // 3. Create the symbol for EOD (e.g., RELIANCE.NSE)
+    const eodSymbol = `${symbol.toUpperCase()}.NSE`;
+    
+    console.log(`Fetching data for: ${eodSymbol}`);
 
     try {
-        const fetchUrl = `${API_URL}?function=TIME_SERIES_DAILY&symbol=${avSymbol}&apikey=${API_KEY}&outputsize=compact`;
+        // 4. Create the new URL.
+        // &fmt=json tells it to send JSON
+        // &period=d gets daily data
+        const fetchUrl = `${API_URL}${eodSymbol}?api_token=${API_KEY}&fmt=json&period=d`;
         
         const apiResponse = await fetch(fetchUrl);
+
+        // 5. Robust error check. If the API fails, it often sends text, not JSON.
         if (!apiResponse.ok) {
-            throw new Error(`Alpha Vantage API failed with status: ${apiResponse.status}`);
+            const errorText = await apiResponse.text();
+            console.error(`EOD API Error: ${errorText}`);
+            throw new Error(`Failed to fetch data from EOD: ${errorText}`);
         }
         
+        // 6. Get the JSON. This API returns an ARRAY [...] directly.
         const data = await apiResponse.json();
 
-        // --- Robust Error Handling ---
-        if (data['Note']) {
-            console.error('Alpha Vantage API Limit Hit:', data['Note']);
-            throw new Error(data['Note']);
+        if (!Array.isArray(data) || data.length === 0) {
+            throw new Error(`EOD API returned no data for ${eodSymbol}.`);
         }
-        if (data['Error Message']) {
-            console.error('Alpha Vantage Error:', data['Error Message']);
-            throw new Error(data['Error Message']);
-        }
-        if (!data['Time Series (Daily)']) {
-            console.error('Alpha Vantage Error: Response missing "Time Series (Daily)" data.');
-            throw new Error(`Alpha Vantage returned no time series data for ${avSymbol}.`);
-        }
-        // --- End Error Handling ---
 
-        const transformedData = transformAlphaVantageData(data);
+        // 7. Transform the data.
+        // The frontend chart expects: { date, Open, High, Low, Close, Volume }
+        // The EOD API sends: { date, open, high, low, close, volume }
+        const transformedData = data.map(item => ({
+            date: item.date,
+            Open: item.open,   // <-- Map from lowercase
+            High: item.high,   // <-- Map from lowercase
+            Low: item.low,     // <-- Map from lowercase
+            Close: item.close, // <-- Map from lowercase
+            Volume: item.volume // <-- Map from lowercase
+        })).slice(-100); // Get the last 100 days
 
-        if (!transformedData || transformedData.length === 0) {
-            console.error(`Data transformation for ${avSymbol} resulted in an empty array.`);
-            throw new Error(`No valid chart data could be processed for ${avSymbol}.`);
-        }
-        
         const latestData = transformedData[transformedData.length - 1];
-        const metaData = data['Meta Data'];
 
-        if (!latestData || typeof latestData.Close === 'undefined') {
-             console.error(`Latest data point for ${avSymbol} is invalid.`);
-             throw new Error(`Could not determine latest price for ${avSymbol}.`);
-        }
-
+        // 8. Create the same AI analysis
         const simpleSMA = transformedData.slice(-10).reduce((acc, val) => acc + val.Close, 0) / 10;
 
-        console.log(`--- DEBUG: Successfully fetched data for ${avSymbol} ---`);
-
+        // 9. Send the exact same JSON structure the frontend expects
         res.json({
-            symbol: metaData ? metaData['2. Symbol'] : avSymbol,
+            symbol: eodSymbol,
             name: `${symbol.toUpperCase()}`,
             data: transformedData,
             ai_analysis: {

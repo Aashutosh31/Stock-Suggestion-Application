@@ -1,87 +1,23 @@
 import React, { useEffect, useRef } from 'react';
-// 1. This is the correct import for v4 (the latest)
 import { createChart, ColorType } from 'lightweight-charts';
 import { useTheme } from '../context/ThemeContext';
 
 const TradingViewChart = ({ data }) => {
   const chartContainerRef = useRef(null);
-  
-  // Refs for the chart and series. We use refs to hold the chart
-  // instance so it survives re-renders.
-  const chartRef = useRef(null);
-  const candlestickSeriesRef = useRef(null);
-  const volumeSeriesRef = useRef(null);
-
   const { theme } = useTheme();
 
-  // --- HOOK 1: CREATE AND CLEAN UP THE CHART ---
-  // This hook runs ONLY ONCE when the component mounts.
-  // The empty dependency array `[]` is the key.
+  // This single, simpler useEffect will run when data or theme changes.
+  // It is NOT StrictMode-proof, which is why Step 1 is required.
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!chartContainerRef.current || data.length === 0) {
+      return;
+    }
 
-    const chart = createChart(chartContainerRef.current, {
+    // --- 1. Apply Theme ---
+    const isDarkMode = theme === 'dark';
+    const chartOptions = {
       width: chartContainerRef.current.clientWidth,
       height: 400,
-    });
-    
-    chart.timeScale().fitContent();
-    chartRef.current = chart;
-
-    // --- Create Series ---
-    const candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#34D399',
-      downColor: '#EF4444',
-      borderDownColor: '#EF4444',
-      borderUpColor: '#34D399',
-      wickDownColor: '#EF4444',
-      wickUpColor: '#34D399',
-    });
-    candlestickSeriesRef.current = candlestickSeries;
-
-    const volumeSeries = chart.addHistogramSeries({
-      priceFormat: {
-        type: 'volume',
-      },
-      priceScaleId: 'volume_scale',
-    });
-    volumeSeriesRef.current = volumeSeries;
-
-    chart.priceScale('volume_scale').applyOptions({
-      scaleMargins: {
-        top: 0.75, // 75% for main chart, 25% for volume
-        bottom: 0,
-      },
-    });
-
-    // --- Resize Observer ---
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        chart.resize(entry.contentRect.width, 400);
-      }
-    });
-    resizeObserver.observe(chartContainerRef.current);
-
-    // --- Cleanup ---
-    // This function runs when the component unmounts
-    return () => {
-      resizeObserver.disconnect();
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-      }
-      candlestickSeriesRef.current = null;
-      volumeSeriesRef.current = null;
-    };
-  }, []); // <-- Empty array means this runs ONCE. This fixes the StrictMode bug.
-
-  // --- HOOK 2: UPDATE THE THEME ---
-  // This hook runs *only* when the theme changes.
-  useEffect(() => {
-    if (!chartRef.current) return; // Don't run if chart isn't created yet
-
-    const isDarkMode = theme === 'dark';
-    chartRef.current.applyOptions({
       layout: { 
         background: { 
           type: ColorType.Solid, 
@@ -99,18 +35,41 @@ const TradingViewChart = ({ data }) => {
       rightPriceScale: {
         borderColor: isDarkMode ? '#374151' : '#E5E7EB',
       },
-    });
-  }, [theme]); // <-- Runs only when theme changes
+    };
 
-  // --- HOOK 3: UPDATE THE DATA ---
-  // This hook runs *only* when the data prop changes.
-  useEffect(() => {
-    // Don't run if the series aren't created yet
-    if (data.length === 0 || !candlestickSeriesRef.current || !volumeSeriesRef.current) {
-      return;
+    // --- 2. Create Chart ---
+    // Clear the container *before* creating a new chart
+    chartContainerRef.current.innerHTML = '';
+    const chart = createChart(chartContainerRef.current, chartOptions);
+    
+    // --- 3. DEBUGGING & GUARD CLAUSE ---
+    // This will tell us if createChart() is the problem.
+    console.log('New chart object:', chart); 
+    if (!chart || typeof chart.addCandlestickSeries !== 'function') {
+        console.error('CRITICAL: createChart() did not return a valid chart object.');
+        return; // Stop execution if the chart object is invalid
     }
 
-    // 1. Transform data
+    // --- 4. Add Series ---
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#34D399',
+      downColor: '#EF4444',
+      borderDownColor: '#EF4444',
+      borderUpColor: '#34D399',
+      wickDownColor: '#EF4444',
+      wickUpColor: '#34D399',
+    });
+
+    const volumeSeries = chart.addHistogramSeries({
+      priceFormat: { type: 'volume' },
+      priceScaleId: 'volume_scale',
+    });
+
+    chart.priceScale('volume_scale').applyOptions({
+      scaleMargins: { top: 0.75, bottom: 0 },
+    });
+
+    // --- 5. Set Data ---
     const chartData = data.map(item => ({
       time: item.date,
       open: item.Open,
@@ -124,14 +83,29 @@ const TradingViewChart = ({ data }) => {
       value: item.Volume,
       color: item.Close > item.Open ? 'rgba(52, 211, 153, 0.5)' : 'rgba(239, 68, 68, 0.5)',
     }));
+    
+    candlestickSeries.setData(chartData);
+    volumeSeries.setData(volumeData);
+    chart.timeScale().fitContent();
 
-    // 2. Set the data on the chart
-    candlestickSeriesRef.current.setData(chartData);
-    volumeSeriesRef.current.setData(volumeData);
+    // --- 6. Resize Observer ---
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        chart.resize(entry.contentRect.width, 400);
+      }
+    });
+    resizeObserver.observe(chartContainerRef.current);
 
-    chartRef.current.timeScale().fitContent();
-
-  }, [data]); // <-- Runs only when data changes
+    // --- 7. Cleanup ---
+    return () => {
+      resizeObserver.disconnect();
+      if (chart) {
+        chart.remove();
+      }
+    };
+  
+  // This hook now re-runs if data or theme changes.
+  }, [data, theme]); 
 
   // The container element for the chart
   return <div ref={chartContainerRef} className="w-full h-[400px]" />;

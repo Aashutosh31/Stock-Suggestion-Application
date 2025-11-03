@@ -1,22 +1,15 @@
-import fetch from 'node-fetch'; // You may need to run: npm install node-fetch
+import fetch from 'node-fetch'; 
 import "dotenv/config";
 
 const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 const API_URL = 'https://www.alphavantage.co/query';
 
-/**
- * Transforms Alpha Vantage TIME_SERIES_DAILY JSON into our clean chart format.
- * @param {object} avData - Raw data from Alpha Vantage
- * @returns {Array} - Array of objects in our { date, Open, High, Low, Close, Volume } format
- */
 const transformAlphaVantageData = (avData) => {
     const timeSeries = avData['Time Series (Daily)'];
     if (!timeSeries) {
+        console.error("Error: 'Time Series (Daily)' key not found in Alpha Vantage response.");
         throw new Error('Invalid data format from Alpha Vantage. Check API key or symbol.');
     }
-
-    // Convert the AV object-of-objects into an array
-    // We also reverse it so the chart plots from left (oldest) to right (newest)
     const chartData = Object.entries(timeSeries)
         .map(([date, values]) => ({
             date: date,
@@ -26,22 +19,22 @@ const transformAlphaVantageData = (avData) => {
             Close: parseFloat(values['4. close']),
             Volume: parseInt(values['5. volume'], 10),
         }))
-        .reverse(); // Alpha Vantage sends newest-first, charts need oldest-first
-
-    // For this app, let's just return the last 100 days
+        .reverse();
     return chartData.slice(-100);
 };
 
-// @route   GET /api/stocks/real/:symbol
-// @desc    Get REAL stock data from Alpha Vantage, proxied and transformed
-// @access  Private (Requires JWT)
 export const getRealStockData = async (req, res) => {
-    const { symbol } = req.params;
     
-    // We must append .BSE or .NSE for Indian stocks for Alpha Vantage
-    // This is a simplification; a production system would have a search/lookup service.
-    // Let's assume '.BSE' for now (e.g., RELIANCE.BSE, TCS.BSE)
-    const avSymbol = `${symbol.toUpperCase()}.BSE`;
+    // const { symbol } = req.params; // <-- We are ignoring the 'RELIANCE' request for this test
+
+    // =================================================================
+    // === TEST: Hardcode a free US stock (IBM) ========================
+    // =================================================================
+    // We will fetch 'IBM' instead of 'RELIANCE.NSE' to prove the API key works.
+    const symbol = "IBM";
+    const avSymbol = "IBM"; // US stocks don't need an exchange suffix
+    console.log(`--- DEBUG: Forcing fetch for US stock: ${avSymbol} ---`);
+    // =================================================================
 
     try {
         const fetchUrl = `${API_URL}?function=TIME_SERIES_DAILY&symbol=${avSymbol}&apikey=${API_KEY}&outputsize=compact`;
@@ -53,24 +46,43 @@ export const getRealStockData = async (req, res) => {
         
         const data = await apiResponse.json();
 
-        if (data['Error Message'] || data['Note']) {
-             // This catches API limit errors or invalid symbols
-            throw new Error(data['Error Message'] || data['Note']);
+        // --- Robust Error Handling ---
+        if (data['Note']) {
+            console.error('Alpha Vantage API Limit Hit:', data['Note']);
+            throw new Error(data['Note']);
         }
+        if (data['Error Message']) {
+            console.error('Alpha Vantage Error:', data['Error Message']);
+            throw new Error(data['Error Message']);
+        }
+        if (!data['Time Series (Daily)']) {
+            console.error('Alpha Vantage Error: Response missing "Time Series (Daily)" data.');
+            throw new Error(`Alpha Vantage returned no time series data for ${avSymbol}.`);
+        }
+        // --- End Error Handling ---
 
-        // Transform the data into the format our frontend expects
         const transformedData = transformAlphaVantageData(data);
 
-        // Get metadata
-        const metaData = data['Meta Data'];
+        if (!transformedData || transformedData.length === 0) {
+            console.error(`Data transformation for ${avSymbol} resulted in an empty array.`);
+            throw new Error(`No valid chart data could be processed for ${avSymbol}.`);
+        }
+        
         const latestData = transformedData[transformedData.length - 1];
+        const metaData = data['Meta Data'];
 
-        // Create a simple AI analysis based on the real data
+        if (!latestData || typeof latestData.Close === 'undefined') {
+             console.error(`Latest data point for ${avSymbol} is invalid.`);
+             throw new Error(`Could not determine latest price for ${avSymbol}.`);
+        }
+
         const simpleSMA = transformedData.slice(-10).reduce((acc, val) => acc + val.Close, 0) / 10;
 
+        console.log(`--- DEBUG: Successfully fetched data for ${avSymbol} ---`);
+
         res.json({
-            symbol: metaData['2. Symbol'],
-            name: `${symbol.toUpperCase()}`, // Simple name
+            symbol: metaData ? metaData['2. Symbol'] : avSymbol,
+            name: `${symbol.toUpperCase()}`,
             data: transformedData,
             ai_analysis: {
                 latest_price: latestData.Close,
@@ -81,7 +93,7 @@ export const getRealStockData = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ msg: `Server error fetching real data: ${err.message}` });
+        console.error("Error in getRealStockData:", err.message);
+        res.status(500).json({ msg: err.message });
     }
 };

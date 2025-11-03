@@ -83,7 +83,7 @@ export const loginUser = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                name: user.name, // Sending name is useful for "Welcome Back" message
+                name: user.name, // <-- ADD THIS LINE
             },
         };
 

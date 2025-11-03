@@ -1,26 +1,33 @@
 import React from 'react';
+import { useParams } from 'react-router-dom'; // Import useParams
 import DashboardLayout from '../layout/DashboardLayout';
 import StockChart from '../components/StockChart';
+import TickerSearch from '../components/TickerSearch'; // NEW IMPORT
 
 const Dashboard = () => {
+  // Get the stock symbol from the URL parameter (e.g., /stock/RELIANCE)
+  const { symbol } = useParams(); 
+  const defaultSymbol = symbol ? symbol.toUpperCase() : 'RELIANCE'; 
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 space-x-0 md:space-x-6 md:space-y-0 p-6">
-        <h1 className="text-3xl font-extrabold dark:text-white text-gray-900">
-          Main Dashboard
-        </h1>
-        <p className="text-lg dark:text-gray-400 text-gray-600">
-          Welcome to your highly accurate Stock Suggestion Application.
-        </p>
+      <div className="space-y-8 p-6">
+        {/* Header with Ticker Search */}
+        <header className="flex flex-col sm:flex-row justify-between items-center pb-4 border-b border-gray-700/50">
+            <h1 className="text-4xl font-extrabold dark:text-white text-gray-900 mb-4 sm:mb-0">
+              Stock Detail View
+            </h1>
+            <TickerSearch initialSymbol={defaultSymbol} /> 
+        </header>
 
-        {/* 🔥 INSERTED THE STOCK CHART COMPONENT HERE */}
-        <StockChart />
+        {/* Pass the dynamic symbol to the StockChart component */}
+        <StockChart symbol={defaultSymbol} /> 
 
-        {/* Placeholder for the main features using the proposal content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card title="Current Trends" content="Analyse Market Trends and also what is currently going on in the market." />
-          <Card title="Risk Assessment" content="Suggest Potential risks and ups and downs as well." />
-          <Card title="Stock Suggestions" content="Suggest the best possible ones to buy and profit margin." />
+        {/* Placeholder cards remain for consistency and structure */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card title="Current Trends" content="Analyse market trends and identify long-term patterns based on technical indicators." />
+          <Card title="Risk Assessment" content="Evaluate volatility and potential downside exposure before making an investment." />
+          <Card title="Profit Maximization" content="Review historical performance to set optimal entry and exit points for high profit margin." />
         </div>
       </div>
     </DashboardLayout>

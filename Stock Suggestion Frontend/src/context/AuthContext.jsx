@@ -4,6 +4,9 @@ import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
+// Base URL for the backend API
+const API_BASE_URL = 'http://localhost:5000'; 
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // Holds { id, name }
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,19 +29,44 @@ export const AuthProvider = ({ children }) => {
 
     // This runs on app load/refresh to check if a token exists
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const verifyAuth = async () => {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                setLoading(false);
+                setIsAuthenticated(false);
+                return;
+            }
+
+            try {
+                // Call our new verification endpoint
+                const res = await fetch(`${API_BASE_URL}/api/auth/verify`, {
+                    headers: {
+                        'x-auth-token': token,
+                    },
+                });
+
+                if (res.ok) {
+                    const { user } = await res.json(); // Get user { id, name }
+                    setUser(user);
+                    setIsAuthenticated(true);
+                } else {
+                    // Token is invalid or expired
+                    localStorage.removeItem('token');
+                    setIsAuthenticated(false);
+                }
+            } catch (err) {
+                // Server is probably down
+                console.error('Auth verification failed:', err);
+                setIsAuthenticated(false);
+            } finally {
+                setLoading(false);
+            }
+        };
         
-        // In a real production app, this is where you would send the token
-        // to a backend verification route (e.g., /api/auth/verify) 
-        // to retrieve user details and validate session status.
-        if (token) {
-            // For now, we only assume validity if token is present
-            setIsAuthenticated(true); 
-        }
+        verifyAuth();
         
-        setLoading(false);
-        
-    }, []);
+    }, []); // Empty dependency array means this runs only once on mount
 
     const contextValue = {
         user,

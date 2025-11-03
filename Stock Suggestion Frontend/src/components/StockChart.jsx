@@ -2,22 +2,22 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'; 
 import useStockData from '../hooks/useStockData';
 import { useTheme } from '../context/ThemeContext';
+import { useRealtimeUpdates } from '../hooks/useRealtimeUpdates'; // Import the real-time hook
 
 // Custom Tooltip (Final, Robust Implementation)
 const CustomTooltip = ({ active, payload, label }) => {
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark';
 
-    // 🔥 FIX 1: Robust initial check for active state and data presence
+    // Robust initial check for active state and data presence
     if (!active || !payload || payload.length === 0) {
         return null;
     }
     
     // Safely access the data point from the payload structure
-    // Use optional chaining all the way down.
     const dataPoint = payload[0]?.payload; 
 
-    // 🔥 FIX 2: Final defensive check to prevent reading 'toFixed' on undefined
+    // Final defensive check to prevent reading 'toFixed' on undefined
     if (!dataPoint || typeof dataPoint.Close === 'undefined' || typeof dataPoint.Open === 'undefined') {
         return null;
     }
@@ -28,7 +28,6 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
         <div className={`p-4 rounded-lg shadow-xl ${isDarkMode ? 'bg-gray-700' : 'bg-white'} border border-gray-600`}>
             <p className="font-bold text-lg dark:text-white mb-2">{label}</p>
-            {/* Safe access using toFixed only after the guard */}
             <p className={`text-sm ${color}`}>Close: ₹{dataPoint.Close.toFixed(2)}</p>
             <p className="text-sm dark:text-gray-300">Open: ₹{dataPoint.Open.toFixed(2)}</p>
             <p className="text-sm dark:text-gray-300">High: ₹{dataPoint.High.toFixed(2)}</p>
@@ -40,12 +39,15 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 
 const StockChart = () => {
-    const { data, loading, error } = useStockData();
+    // 1. Initial data fetch using react-query
+    const { data, isLoading, isError, error } = useStockData('RELIANCE');
     const { theme } = useTheme();
 
-    // ... (Loading and Error blocks remain the same)
-    if (loading) {
-        // Updated loader for a more professional look
+    // 2. Establish WebSocket connection and listen for updates
+    useRealtimeUpdates();
+
+    // 3. Handle Loading State
+    if (isLoading) {
         return <div className="text-center p-8 dark:text-gray-300 text-lg flex justify-center items-center h-96">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -55,20 +57,23 @@ const StockChart = () => {
         </div>;
     }
 
-    if (error) {
-        // Display error message clearly
+    // 4. Handle Error State
+    if (isError) {
         return <div className="text-center p-8 text-red-500 bg-red-900/20 border border-red-500 rounded-lg h-96 flex items-center justify-center">
-            <span className='font-semibold'>Data Fetch Error: </span> {error}
+            <span className='font-semibold'>Data Fetch Error: </span> {error.message}
         </div>;
     }
 
+    // 5. Handle Empty State
     if (!data) {
         return <div className="text-center p-8 dark:text-gray-400 h-96 flex items-center justify-center">No stock data available. Please check the backend connection.</div>;
     }
 
+    // 6. Data is ready, destructure it
     const { symbol, name, data: chartData, ai_analysis } = data;
     const isDarkMode = theme === 'dark';
     
+    // This logic is now robust as our data source (backend mock or live tick) provides OHLC
     const getBarColor = (data) => {
         return data.Close >= data.Open ? '#34D399' : '#EF4444'; // Green or Red
     };
@@ -91,7 +96,7 @@ const StockChart = () => {
                 </div>
             </div>
 
-            {/* AI Analysis and Risk Panel */}
+            {/* AI Analysis and Risk Panel (These values will update live via WebSocket) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center dark:text-gray-300">
                 <div className="dark:bg-gray-700 bg-gray-100 p-4 rounded-lg">
                     <p className="text-sm text-gray-500 dark:text-gray-400">Latest Close Price</p>
@@ -108,12 +113,11 @@ const StockChart = () => {
             </div>
 
 
-            {/* Responsive Chart Container with fixed height to solve width/height(-1) error */}
-            {/* FIX: Added min-w-0 to container for better responsiveness */}
+            {/* Responsive Chart Container */}
             <div className="w-full h-96 min-w-0"> 
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                        data={chartData}
+                        data={chartData} // This data is now live-updated via react-query
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#374151' : '#e5e7eb'} />
@@ -143,7 +147,7 @@ const StockChart = () => {
                 </ResponsiveContainer>
             </div>
             <p className="text-sm text-center dark:text-gray-500">
-                **Advanced Stock Suggestion Logic** is live, using mock OHLC data and a 3-Period SMA for analysis.
+                **Live Data Pipeline** is active. Price and trend will update every 5 seconds.
             </p>
         </div>
     );

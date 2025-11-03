@@ -1,15 +1,19 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast'; 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // <-- FIXED IMPORT
 import { ThemeProvider } from './context/ThemeContext'; 
-import { AuthProvider, useAuth } from './context/AuthContext'; // Updated imports
-import { ApiProvider } from './context/ApiContext'; // New API Provider
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ApiProvider } from './context/ApiContext';
+import { WebSocketProvider } from './context/WebSocketContext'; // NEW IMPORT
 
 // Import all components and pages
 import Register from './components/Register'; 
 import Login from './components/Login';       
 import Dashboard from './pages/Dashboard';    
-import DashboardLayout from './layout/DashboardLayout'; 
+import TopPicks from './pages/TopPicks'; // NEW PAGE IMPORT
+
+const queryClient = new QueryClient();
 
 // --- PrivateRoute Component for protected routes ---
 const PrivateRoute = ({ element: Element }) => {
@@ -31,30 +35,39 @@ const App = () => {
             {/* Wrap the core logic with AuthProvider and ApiProvider */}
             <AuthProvider> 
                 <ApiProvider>
-                    {/* Apply base background with theme transition */}
-                    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
-                        {/* Global Toast Notification Container */}
-                        <Toaster position="top-center" reverseOrder={false} /> 
-                        
-                        <Routes>
-                            {/* Public Auth Routes */}
-                            <Route path="/" element={<Login />} /> 
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/login" element={<Login />} /> 
-                            
-                            {/* Private Application Routes (Protected) */}
-                            <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
-                            
-                            {/* Other protected pages (using PrivateRoute) */}
-                            <Route path="/trends" element={<PrivateRoute element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Trends Analysis Page (Coming Soon)</div></DashboardLayout>} />} />
-                            <Route path="/sections" element={<PrivateRoute element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Other Sections Page (Coming Soon)</div></DashboardLayout>} />} />
-                            <Route path="/settings" element={<PrivateRoute element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Settings Page (Coming Soon)</div></DashboardLayout>} />} />
-                            
-                            {/* Catch-all route */}
-                            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    <QueryClientProvider client={queryClient}> {/* NEW: React Query for API caching */}
+                        <WebSocketProvider> {/* NEW: WebSocket for real-time stream */}
+                            {/* Apply base background with theme transition */}
+                            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+                                {/* Global Toast Notification Container */}
+                                <Toaster position="top-center" reverseOrder={false} /> 
+                                
+                                <Routes>
+                                    {/* Public Auth Routes */}
+                                    <Route path="/" element={<Navigate to="/top-picks" replace />} /> 
+                                    <Route path="/register" element={<Register />} />
+                                    <Route path="/login" element={<Login />} /> 
+                                    
+                                    {/* Private Application Routes (Protected) */}
+                                    {/* NEW: Home screen for ranked stocks */}
+                                    <Route path="/top-picks" element={<PrivateRoute element={<TopPicks />} />} />
+                                    
+                                    {/* NEW: Dynamic route for detailed charts */}
+                                    <Route path="/stock/:symbol" element={<PrivateRoute element={<Dashboard />} />} />
 
-                        </Routes>
-                    </div>
+                                    {/* Legacy/Utility routes */}
+                                    <Route path="/dashboard" element={<Navigate to="/stock/RELIANCE" replace />} /> 
+                                    <Route path="/trends" element={<PrivateRoute element={<TopPicks />} />} /> 
+                                    <Route path="/sections" element={<PrivateRoute element={<TopPicks />} />} /> 
+                                    <Route path="/settings" element={<PrivateRoute element={<TopPicks />} />} /> 
+                                    
+                                    {/* Catch-all route */}
+                                    <Route path="*" element={<Navigate to="/top-picks" replace />} />
+
+                                </Routes>
+                            </div>
+                        </WebSocketProvider>
+                    </QueryClientProvider>
                 </ApiProvider>
             </AuthProvider>
         </Router>

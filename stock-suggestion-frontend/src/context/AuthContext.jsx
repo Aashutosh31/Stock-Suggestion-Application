@@ -4,9 +4,8 @@ import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
-// --- 1. THE FIX: Use the Environment Variable ---
-// This will be 'http://localhost:5000' on local, 
-// and your Render URL on production.
+// --- THIS IS THE FIX ---
+// It now uses the VITE_API_BASE_URL from your Vercel settings
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 
 export const AuthProvider = ({ children }) => {
@@ -40,8 +39,16 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
+            // Check if the Vercel variable is even set
+            if (!API_BASE_URL) {
+                console.error("CRITICAL: VITE_API_BASE_URL is not defined.");
+                setLoading(false);
+                setIsAuthenticated(false); // Can't verify, log out.
+                return;
+            }
+
             try {
-                // Call our verification endpoint using the correct URL
+                // Call our verification endpoint using the CORRECT URL
                 const res = await fetch(`${API_BASE_URL}/api/auth/verify`, {
                     headers: {
                         'x-auth-token': token,
@@ -58,13 +65,8 @@ export const AuthProvider = ({ children }) => {
                     setIsAuthenticated(false);
                 }
             } catch (err) {
-                // --- 2. THE LOGIC FIX ---
-                // A network error (like ERR_CONNECTION_REFUSED) should NOT
-                // log the user out. It just means the server is down.
-                // We will leave the user "authenticated" (for now)
-                // and just log the error.
+                // If the server is just down, don't log the user out.
                 console.error('Auth verification failed:', err);
-                // We removed: setIsAuthenticated(false);
             } finally {
                 setLoading(false);
             }

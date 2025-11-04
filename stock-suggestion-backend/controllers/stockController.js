@@ -4,6 +4,26 @@ import "dotenv/config";
 const API_KEY = process.env.EOD_API_KEY;
 const API_URL = 'https://eodhistoricaldata.com/api/eod/';
 
+        // Add this to your existing stockController.js
+         export const getMarketMovers = async (req, res) => {
+            try {
+                // Fetch top 5 stocks with the highest trendingScore
+                const gainers = await Stock.find({})
+                    .sort({ trendingScore: -1 })
+                    .limit(5);
+
+                // Fetch top 5 stocks with the lowest trendingScore
+                const losers = await Stock.find({})
+                    .sort({ trendingScore: 1 })
+                    .limit(5);
+
+                res.json({ gainers, losers });
+
+            } catch (err) {
+                console.error("Error in getMarketMovers:", err.message);
+                res.status(500).json({ msg: "Server Error" });
+            }
+        };
 // @route   GET /api/stocks/real/:symbol
 // @desc    Get REAL stock data from EOD Historical Data
 // @access  Private (Requires JWT)

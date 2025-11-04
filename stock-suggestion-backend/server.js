@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import "dotenv/config";
 import authRoutes from "./routes/auth.js"; 
 import stockRoutes from "./routes/stocks.js";
+import userRoutes from "./routes/user.js";
 import { initWebSocketServer } from "./services/webSocketService.js"; 
 import passport from "passport";
 import './config/passport.js'
@@ -16,6 +17,7 @@ app.use(passport.initialize());
 // --- ROUTES ---
 app.use('/api/auth', authRoutes); 
 app.use('/api/stocks',stockRoutes);
+app.use('/api/user',userRoutes);
 // --------------
 
 app.get("/", (req,res)=>res.send("API is running..."));
@@ -32,8 +34,8 @@ mongoose.connect(process.env.MONGO_URL)
     );
 
   // --- DISABLE MOCK SIMULATION ---
-    // initWebSocketServer(server); 
-    console.log("WebSocket simulation is OFF. Serving real data via HTTP polling.");
+    initWebSocketServer(server); 
+    console.log("WebSocket simulation is ON. Serving real data via HTTP polling.");
 
   })
   .catch(console.error);

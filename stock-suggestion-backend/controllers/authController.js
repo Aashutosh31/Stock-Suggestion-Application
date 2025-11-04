@@ -102,3 +102,31 @@ export const loginUser = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+export const updateProfile = async (req, res) => {
+    const { name } = req.body;
+    
+    // Only update fields that are provided
+    const updateFields = {};
+    if (name) updateFields.name = name;
+
+    if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ msg: 'No fields to update' });
+    }
+
+    try {
+        let user = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updateFields },
+            { new: true } // Return the updated document
+        ).select('-password'); // Don't send the password back
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};

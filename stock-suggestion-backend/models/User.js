@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: false, // Not required if using Google
     },
+    watchlist: {
+        type: [String], // An array of stock symbols
+        default: [],
+    },
     date: {
         type: Date,
         default: Date.now,

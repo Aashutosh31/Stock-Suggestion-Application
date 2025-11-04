@@ -2,15 +2,19 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast'; 
 import { ThemeProvider } from './context/ThemeContext'; 
-import { AuthProvider, useAuth } from './context/AuthContext'; // Updated imports
-import { ApiProvider } from './context/ApiContext'; // New API Provider
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ApiProvider } from './context/ApiContext';
 import AuthCallback from './pages/AuthCallback';
 
 // Import all components and pages
 import Register from './components/Register'; 
 import Login from './components/Login';       
 import Dashboard from './pages/Dashboard';    
-import DashboardLayout from './layout/DashboardLayout'; 
+// --- IMPORT OUR NEW PAGES ---
+import TrendsPage from './pages/TrendsPage';
+import WatchlistPage from './pages/WatchlistPage';
+import SettingsPage from './pages/SettingsPage';
+// --- END IMPORTS ---
 
 // --- PrivateRoute Component for protected routes ---
 const PrivateRoute = ({ element: Element }) => {
@@ -46,12 +50,12 @@ const App = () => {
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 
                 {/* Private Application Routes (Protected) */}
+                {/* --- UPDATE PRIVATE ROUTES --- */}
                 <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
-                
-                {/* Other protected pages (using PrivateRoute) */}
-                <Route path="/trends" element={<PrivateRoute element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Trends Analysis Page (Coming Soon)</div></DashboardLayout>} />} />
-                <Route path="/sections" element={<PrivateRoute element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Other Sections Page (Coming Soon)</div></DashboardLayout>} />} />
-                <Route path="/settings" element={<PrivateRoute element={<DashboardLayout><div className="text-3xl p-8 dark:text-white">Settings Page (Coming Soon)</div></DashboardLayout>} />} />
+                <Route path="/trends" element={<PrivateRoute element={<TrendsPage />} />} />
+                <Route path="/sections" element={<PrivateRoute element={<WatchlistPage />} />} />
+                <Route path="/settings" element={<PrivateRoute element={<SettingsPage />} />} />
+                {/* --- END UPDATES --- */}
                 
                 {/* Catch-all route */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

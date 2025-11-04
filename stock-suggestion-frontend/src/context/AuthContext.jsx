@@ -4,8 +4,10 @@ import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
-// Base URL for the backend API
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// --- 1. THE FIX: Use the Environment Variable ---
+// This will be 'http://localhost:5000' on local, 
+// and your Render URL on production.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // Holds { id, name }
@@ -39,7 +41,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                // Call our new verification endpoint
+                // Call our verification endpoint using the correct URL
                 const res = await fetch(`${API_BASE_URL}/api/auth/verify`, {
                     headers: {
                         'x-auth-token': token,
@@ -51,14 +53,18 @@ export const AuthProvider = ({ children }) => {
                     setUser(user);
                     setIsAuthenticated(true);
                 } else {
-                    // Token is invalid or expired
+                    // Token is invalid or expired (401 error)
                     localStorage.removeItem('token');
                     setIsAuthenticated(false);
                 }
             } catch (err) {
-                // Server is probably down
+                // --- 2. THE LOGIC FIX ---
+                // A network error (like ERR_CONNECTION_REFUSED) should NOT
+                // log the user out. It just means the server is down.
+                // We will leave the user "authenticated" (for now)
+                // and just log the error.
                 console.error('Auth verification failed:', err);
-                setIsAuthenticated(false);
+                // We removed: setIsAuthenticated(false);
             } finally {
                 setLoading(false);
             }

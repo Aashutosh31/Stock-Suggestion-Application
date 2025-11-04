@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
-const API_BASE_URL = 'https://stock-suggestion-app.onrender.com'; 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Register = () => {
     // State to hold form data

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 const AuthContext = createContext();
 
 // Base URL for the backend API
-const API_BASE_URL = 'https://stock-suggestion-app.onrender.com'; 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // Holds { id, name }

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useRef } from 'r
 import toast from 'react-hot-toast';
 
 const WebSocketContext = createContext(null);
-const WS_URL = 'ws://https://stock-suggestion-app.onrender.com'; 
+const WS_URL = import.meta.env.VITE_WS_URL;
 
 export const WebSocketProvider = ({ children }) => {
     // State for streaming price updates (keyed by symbol)

@@ -1,6 +1,6 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer } from 'wss';
 
-let ws;
+let wss;
 // Use the last price from your mock data as the starting point
 let lastPrice = 3105.60; 
 
@@ -9,18 +9,18 @@ let lastPrice = 3105.60;
  * @param {http.Server} server - The HTTP server instance from Express.
  */
 export const initWebSocketServer = (server) => {
-    ws = new WebSocketServer({ server });
+    wss = new WebSocketServer({ server });
 
-    ws.on('connection', (ws) => {
+    wss.on('connection', (wss) => {
         console.log('Client connected to WebSocket');
         
-        ws.send(JSON.stringify({ 
+        wss.send(JSON.stringify({ 
             type: 'connection', 
             message: 'WebSocket connection established.' 
         }));
 
-        ws.on('close', () => console.log('Client disconnected'));
-        ws.on('error', (error) => console.error('WebSocket Error:', error));
+        wss.on('close', () => console.log('Client disconnected'));
+        wss.on('error', (error) => console.error('WebSocket Error:', error));
     });
 
     console.log('WebSocket server initialized.');
@@ -34,10 +34,10 @@ export const initWebSocketServer = (server) => {
  * @param {object} data - The data object to send.
  */
 export const broadcast = (data) => {
-    if (!ws) return;
+    if (!wss) return;
 
     const jsonData = JSON.stringify(data);
-    ws.clients.forEach((client) => {
+    wss.clients.forEach((client) => {
         if (client.readyState === client.OPEN) {
             client.send(jsonData);
         }

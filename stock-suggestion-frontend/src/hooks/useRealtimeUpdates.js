@@ -2,7 +2,13 @@ import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
-const WS_URL = 'ws://https://stock-suggestion-app.onrender.com';
+// --- THIS IS THE FIX ---
+// REMOVE the hardcoded, incorrect URL:
+// const WS_URL = 'ws://https://stock-suggestion-app.onrender.com';
+//
+// ADD the correct environment variable:
+const WS_URL = import.meta.env.VITE_WS_URL;
+// --- END FIX ---
 
 /**
  * Custom hook to connect to the stock WebSocket server
@@ -18,6 +24,7 @@ export const useRealtimeUpdates = () => {
             return;
         }
 
+        // --- This will now use the correct "wss://..." URL ---
         ws.current = new WebSocket(WS_URL);
 
         ws.current.onopen = () => {

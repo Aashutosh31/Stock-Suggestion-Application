@@ -1,37 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom'; // Import useSearchParams
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../layout/DashboardLayout';
 import StockChart from '../components/StockChart';
-import TickerSearch from '../components/TickerSearch'; // Import TickerSearch
+import TickerSearch from '../components/TickerSearch';
 
 const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const symbolFromUrl = searchParams.get('symbol');
 
-  // Priority: 1. Symbol from URL, 2. Default to 'RELIANCE'
   const [selectedSymbol, setSelectedSymbol] = useState(symbolFromUrl || 'RELIANCE');
 
-  // Effect to update symbol if URL changes
   useEffect(() => {
     setSelectedSymbol(symbolFromUrl || 'RELIANCE');
   }, [symbolFromUrl]);
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-6">
+      {/* Use p-0 md:p-6 so the mobile header touches the edges */}
+      <div className="space-y-6">
+        
+        {/* --- 1. ADD flex-wrap AND ADJUST PADDING/MARGIN --- */}
         <div className="flex flex-wrap justify-between items-center gap-4">
             <h1 className="text-3xl font-extrabold dark:text-white text-gray-900">
               Stock Dashboard
             </h1>
-            {/* Add the search bar here */}
             <TickerSearch initialSymbol={selectedSymbol} />
         </div>
         
-        {/* Pass the selected symbol as a prop to the chart component */}
-        {/* The key prop forces the component to re-mount when the symbol changes */}
+        {/* This button group will now wrap on small screens */}
+        <div className="flex flex-wrap gap-4 my-4">
+          <button 
+            onClick={() => setSelectedSymbol('RELIANCE')}
+            className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'RELIANCE' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
+          >
+            RELIANCE
+          </button>
+          <button 
+            onClick={() => setSelectedSymbol('TCS')}
+            className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'TCS' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
+          >
+            TCS
+          </button>
+          <button 
+            onClick={() => setSelectedSymbol('INFY')}
+            className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'INFY' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
+          >
+            INFY
+          </button>
+        </div>
+        {/* --- END TWEAK --- */}
+
         <StockChart key={selectedSymbol} symbol={selectedSymbol} />
 
-        {/* Placeholder cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card title="Current Trends" content="Analyse Market Trends and also what is currently going on in the market." />
           <Card title="Risk Assessment" content="Suggest Potential risks and ups and downs as well." />

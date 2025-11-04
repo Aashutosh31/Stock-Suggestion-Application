@@ -39,7 +39,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
     // Dynamic width class: 64 for expanded, 20 for collapsed
     const sidebarWidth = isCollapsed ? 'w-20' : 'w-64'; 
     const logoText = "StockSuggest";
-    const gradientLogo = "text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-500";
+    const gradientLogo = "text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-sky-500";
     
     // Class for the link content (text/icon) to show/hide the text
     // Note: Use 'group' and conditional text rendering for better styling

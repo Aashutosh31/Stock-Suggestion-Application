@@ -8,13 +8,13 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 space-x-0 md:space-x-6 md:space-y-0 p-6">
-        <h1 className="text-3xl font-extrabold dark:text-white text-gray-900">
+      <div className="space-y-6 space-x-0 md:space-x-6 md:space-y-0 p-6 ">
+        <h1 className="text-3xl font-extrabold  dark:text-white text-gray-900 mb-10">
           Main Dashboard
         </h1>
         
         {/* Simple UI to change the selected stock */}
-        <div className="flex gap-4 my-4">
+        <div className="flex gap-4 py-4 ">
           <button 
             onClick={() => setSelectedSymbol('RELIANCE')}
             className={`p-2 px-4 rounded-lg text-white font-semibold transition-all ${selectedSymbol === 'RELIANCE' ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-gray-600 hover:bg-gray-500'}`}
@@ -51,7 +51,7 @@ const Dashboard = () => {
 
 // Reusable Card Component for a clean layout
 const Card = ({ title, content }) => (
-    <div className="dark:bg-gray-800 bg-white p-6 rounded-xl shadow-lg dark:shadow-xl dark:border dark:border-gray-700 transition duration-300 transform hover:scale-[1.02] hover:shadow-blue-500/30">
+    <div className="dark:bg-gray-800 bg-white p-6 rounded-xl shadow-lg dark:shadow-xl dark:border dark:border-gray-700 transition duration-300 transform hover:scale-[1.02] hover:shadow-blue-500/30 mt-10">
         <h3 className="text-xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">{title}</h3>
         <p className="dark:text-gray-300 text-gray-600">{content}</p>
     </div>

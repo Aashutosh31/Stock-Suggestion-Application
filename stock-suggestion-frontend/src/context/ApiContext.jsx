@@ -5,7 +5,7 @@ const ApiContext = createContext();
 export const ApiProvider = ({ children }) => {
     // Base URL for the conceptual external financial API 
     // (e.g., Alpha Vantage, or you could use a backend wrapper service URL here)
-    const [apiUrl] = useState('https://www.alphavantage.co/query'); 
+    const [apiUrl] = useState('https://eodhistoricaldata.com'); 
 
     return (
         <ApiContext.Provider value={{ apiUrl }}>

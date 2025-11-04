@@ -37,9 +37,9 @@ mongoose.connect(process.env.MONGO_URL)
     );
 
     // --- 2. INITIALIZE THE *NEW* WEBSOCKET SERVER ---
-    const wss = new WebSocketServer({ server });
+    const ws = new WebSocketServer({ server });
     
-    wss.on('connection', (ws) => {
+    ws.on('connection', (ws) => {
         handleConnection(ws); // Use the handler from core/websocket.js
     });
     

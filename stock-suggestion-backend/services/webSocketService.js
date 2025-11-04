@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws';
 
-let wss;
+let ws;
 // Use the last price from your mock data as the starting point
 let lastPrice = 3105.60; 
 
@@ -9,9 +9,9 @@ let lastPrice = 3105.60;
  * @param {http.Server} server - The HTTP server instance from Express.
  */
 export const initWebSocketServer = (server) => {
-    wss = new WebSocketServer({ server });
+    ws = new WebSocketServer({ server });
 
-    wss.on('connection', (ws) => {
+    ws.on('connection', (ws) => {
         console.log('Client connected to WebSocket');
         
         ws.send(JSON.stringify({ 
@@ -34,10 +34,10 @@ export const initWebSocketServer = (server) => {
  * @param {object} data - The data object to send.
  */
 export const broadcast = (data) => {
-    if (!wss) return;
+    if (!ws) return;
 
     const jsonData = JSON.stringify(data);
-    wss.clients.forEach((client) => {
+    ws.clients.forEach((client) => {
         if (client.readyState === client.OPEN) {
             client.send(jsonData);
         }

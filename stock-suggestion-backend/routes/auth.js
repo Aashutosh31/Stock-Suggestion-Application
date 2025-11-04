@@ -1,6 +1,8 @@
 import express from 'express';
 import { registerUser, loginUser } from '../controllers/authController.js';
-import { protect } from '../middleware/authMiddleware.js'; // Import the middleware
+import { protect } from '../middleware/authMiddleware.js'; 
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
@@ -26,6 +28,49 @@ router.get('/verify', protect, (req, res) => {
     // For now, let's send back what we have.
     res.json({ user: req.user });
 });
-// -------------------------
+// --- ADD GOOGLE OAUTH ROUTES ---
+
+// @route   GET /api/auth/google
+// @desc    Initiate Google OAuth flow
+// @access  Public
+router.get(
+  '/google',
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'], // What we want from Google
+    session: false 
+  })
+);
+
+// @route   GET /api/auth/google/callback
+// @desc    Google OAuth callback
+// @access  Public
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  (req, res) => {
+    // 3. User is authenticated by passport! (available at req.user)
+    // We create our own JWT.
+    const payload = {
+      user: {
+        id: req.user.id,
+        name: req.user.name,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '5h' },
+      (err, token) => {
+        if (err) throw err;
+        
+        // 4. Redirect user back to the FRONTEND, passing the token in the URL
+        // We also pass user data to save a network request
+        const userQuery = encodeURIComponent(JSON.stringify(payload.user));
+        res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${userQuery}`);
+      }
+    );
+  }
+);
 
 export default router;

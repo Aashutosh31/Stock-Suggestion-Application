@@ -4,12 +4,14 @@ import mongoose from "mongoose";
 import "dotenv/config";
 import authRoutes from "./routes/auth.js"; 
 import stockRoutes from "./routes/stocks.js";
-import { initWebSocketServer } from "./services/webSocketService.js"; // Import the service
-
+import { initWebSocketServer } from "./services/webSocketService.js"; 
+import passport from "passport";
+import './config/passport.js'
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
 // --- ROUTES ---
 app.use('/api/auth', authRoutes); 

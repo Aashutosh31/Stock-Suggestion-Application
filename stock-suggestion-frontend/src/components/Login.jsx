@@ -129,7 +129,8 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <button
+                    <a
+                        href = {`${API_BASE_URL}/api/auth/google`}
                         className="w-full flex items-center justify-center h-12 gap-3 py-0 px-4 border border-gray-600 rounded-lg shadow-sm text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300"
                     >
                        <svg
@@ -145,7 +146,7 @@ const Login = () => {
                         </svg>
 
                         <span className="select-none align-middle leading-none">Login with Google</span>
-                    </button>
+                    </a>
                     
                     <p className="text-gray-400">
                         Don't have an account?{' '}

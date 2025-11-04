@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './context/ThemeContext'; 
 import { AuthProvider, useAuth } from './context/AuthContext'; // Updated imports
 import { ApiProvider } from './context/ApiContext'; // New API Provider
+import AuthCallback from './pages/AuthCallback';
 
 // Import all components and pages
 import Register from './components/Register'; 
@@ -41,6 +42,8 @@ const App = () => {
                 <Route path="/" element={<Login />} /> 
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} /> 
+                {/* Callback Route */}
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 
                 {/* Private Application Routes (Protected) */}
                 <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />

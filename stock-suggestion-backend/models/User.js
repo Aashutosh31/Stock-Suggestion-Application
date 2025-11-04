@@ -1,3 +1,4 @@
+// In Stock Suggestion Backend/models/User.js
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
@@ -8,11 +9,16 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true, // Ensures no two users can register with the same email
+        unique: true,
     },
-    password: {
+    googleId: { // <-- ADD THIS
         type: String,
-        required: true,
+        unique: true,
+        sparse: true // Allows multiple null values (for non-Google users)
+    },
+    password: { // <-- MAKE OPTIONAL
+        type: String,
+        required: false, // Not required if using Google
     },
     date: {
         type: Date,
@@ -21,5 +27,4 @@ const UserSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
-
 export default User;

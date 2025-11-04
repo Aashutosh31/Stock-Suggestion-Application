@@ -107,8 +107,8 @@ const Register = () => {
                             Log in here
                         </Link>
                     </p>
-                    <button
-                        // Placeholder for Google Auth (A future requirement for login)
+                    <a
+                        href={`${API_BASE_URL}/api/auth/google`}
                         className="w-full flex items-center justify-center h-12 gap-3 py-0 px-4 border border-gray-600 rounded-lg shadow-sm text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300"
                     >
                        <svg
@@ -124,7 +124,7 @@ const Register = () => {
                         </svg>
 
                         <span className="select-none align-middle leading-none">Sign up with Google</span>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

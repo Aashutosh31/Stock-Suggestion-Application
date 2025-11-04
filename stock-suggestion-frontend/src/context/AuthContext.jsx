@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -14,19 +14,24 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const login = (token, userData) => {
+    // --- FIX 1: Wrap login in useCallback ---
+    // This ensures the function reference is stable and doesn't
+    // trigger useEffect loops in components that depend on it.
+    const login = useCallback((token, userData) => {
         localStorage.setItem('token', token);
         setUser(userData);
         setIsAuthenticated(true);
-    };
+    }, []); // No dependencies, this function is stable
 
-    const logout = () => {
+    // --- FIX 2: Wrap logout in useCallback ---
+    // This is also good practice for the same reason.
+    const logout = useCallback(() => {
         localStorage.removeItem('token');
         setUser(null);
         setIsAuthenticated(false);
         toast.success('Successfully logged out!');
         navigate('/login');
-    };
+    }, [navigate]); // Depends on navigate
 
 // This runs on app load/refresh to check if a token exists
     useEffect(() => {
@@ -84,8 +89,8 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated,
         loading,
-        login,
-        logout
+        login, // This is now the stable, memoized version
+        logout // This is now the stable, memoized version
     };
 
     return (

@@ -3,16 +3,19 @@ import cacheService from '../core/cache.js';
 import { calculateIndicators, determineSignal, calculateTrendingScore } from './signalService.js';
 import { broadcast, setRealTimeScheduler } from '../core/websocket.js'; 
 import dotenv from 'dotenv';
+import fetch from 'node-fetch'; // Make sure node-fetch is imported
 
 dotenv.config();
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-const BASE_URL = 'https://www.alphavantage.co/query';
+// --- THE FIX: Use EOD_API_KEY, not Alpha Vantage ---
+const API_KEY = process.env.EOD_API_KEY;
+const BASE_URL = 'https://eodhistoricaldata.com/api/eod';
+// --- END FIX ---
 
-// --- ALPHA VANTAGE FETCH & CACHE HANDLER ---
+// --- EOD FETCH & CACHE HANDLER (Replaces Alpha Vantage) ---
 
-const fetchAndCacheTimeSeries = async (symbol, functionName) => {
-    const cacheKey = `av:${functionName}:${symbol}`;
+const fetchAndCacheTimeSeries = async (symbol) => {
+    const cacheKey = `eod:daily:${symbol}`;
     const cachedData = await cacheService.get(cacheKey);
 
     if (cachedData) {
@@ -20,42 +23,43 @@ const fetchAndCacheTimeSeries = async (symbol, functionName) => {
         return cachedData;
     }
 
-    console.log(`Cache MISS for ${symbol}. Fetching from Alpha Vantage...`);
+    // --- THE FIX: Use EOD URL and log message ---
+    console.log(`Cache MISS for ${symbol}. Fetching from EOD Historical Data...`);
 
     // Mandatory Rate Limit Management: 13-second delay between calls
+    // (Keeping this as a safety measure, though EOD is less strict)
     await new Promise(resolve => setTimeout(resolve, 13000)); 
     
-    const url = `${BASE_URL}?function=${functionName}&symbol=${symbol}.NSE&outputsize=full&apikey=${API_KEY}`; 
+    const eodSymbol = `${symbol.toUpperCase()}.NSE`;
+    const url = `${BASE_URL}/${eodSymbol}?api_token=${API_KEY}&fmt=json&period=d`; 
+    // --- END FIX ---
+
     const response = await fetch(url);
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`EOD API Error for ${symbol}:`, errorText);
+        throw new Error(errorText || 'EOD API Error.');
+    }
+    
     const data = await response.json();
-    
-    // 1. Check for official error fields or non-OK response
-    if (data['Error Message'] || !response.ok) {
-        console.error(`AV Error for ${symbol}:`, data);
-        throw new Error(data['Error Message'] || 'Alpha Vantage API Error.');
-    }
-    
-    // 2. CRITICAL FIX: Explicitly handle Rate Limit/Premium Note
-    if (data['Note'] && data['Note'].includes('5 calls per minute')) {
-        console.warn(`⚠️ AV Rate Limit Hit for ${symbol}. Skipping for this cycle.`);
-        return null; // Return null so the calling function can skip this ticker gracefully.
-    }
-    
-    // 3. Check if Time Series Key exists (Harden against empty/invalid responses)
-    const timeSeriesKey = Object.keys(data).find(key => key.includes('Time Series'));
-    if (!timeSeriesKey) {
-        console.warn(`⚠️ AV returned no time series data for ${symbol}. Skipping fetch.`);
+
+    if (!Array.isArray(data) || data.length === 0) {
+        console.warn(`⚠️ EOD returned no time series data for ${symbol}. Skipping fetch.`);
         return null;
     }
     
-    const timeSeries = data[timeSeriesKey];
-
-    // Transform and clean AV data
-    const transformedData = Object.entries(timeSeries).map(([date, values]) => ({
-        date, Open: parseFloat(values['1. open']), High: parseFloat(values['2. high']),
-        Low: parseFloat(values['3. low']), Close: parseFloat(values['4. close']),
-        Volume: parseInt(values['5. volume'], 10),
+    // --- THE FIX: Transform EOD data (it's an array, not an object) ---
+    // Map to all lowercase keys to match the chart library's defaults
+    const transformedData = data.map(item => ({
+        date: item.date,
+        Open: parseFloat(item.open),
+        High: parseFloat(item.high),
+        Low: parseFloat(item.low),
+        Close: parseFloat(item.close),
+        Volume: parseInt(item.volume, 10),
     })).sort((a, b) => new Date(a.date) - new Date(b.date)); 
+    // --- END FIX ---
 
     const enrichedData = calculateIndicators(transformedData);
     await cacheService.set(cacheKey, enrichedData, 43200); // Cache for 12 hours
@@ -67,8 +71,9 @@ const fetchAndCacheTimeSeries = async (symbol, functionName) => {
 // --- PUBLIC DATA EXPOSURE METHODS (Rest of the file remains the same) ---
 
 export const getDailyStockData = async (symbol) => {
-    const enrichedData = await fetchAndCacheTimeSeries(symbol, 'TIME_SERIES_DAILY');
-    if (!enrichedData || enrichedData.length === 0) return null; // This now correctly handles the null returned above.
+    // This function is now consistent with the batch update
+    const enrichedData = await fetchAndCacheTimeSeries(symbol);
+    if (!enrichedData || enrichedData.length === 0) return null; 
 
     const latestData = enrichedData[enrichedData.length - 1];
     const { signal, reason } = determineSignal(latestData);
@@ -106,10 +111,10 @@ export const runDailyBatchUpdate = async () => {
     console.log(`--- Running Daily Batch Update for ${allStocks.length} Tickers ---`);
     for (const stock of allStocks) {
         try {
-            // Note: fetchAndCacheTimeSeries will return null if rate limit is hit
-            const enrichedData = await fetchAndCacheTimeSeries(stock.symbol, 'TIME_SERIES_DAILY');
+            // This will now call the EOD-based function
+            const enrichedData = await fetchAndCacheTimeSeries(stock.symbol);
             
-            if (!enrichedData || enrichedData.length === 0) continue; // Skip if null (rate limit or no data)
+            if (!enrichedData || enrichedData.length === 0) continue; 
             
             const latestData = enrichedData[enrichedData.length - 1];
             const trendingScore = calculateTrendingScore(latestData);
@@ -137,6 +142,7 @@ export const scheduleRealTimeUpdates = (clients) => {
     runDailyBatchUpdate(); 
     
     updateInterval = setInterval(async () => {
+        // This 'clients' variable is now correctly passed from core/websocket.js
         if (clients.size === 0) {
             clearInterval(updateInterval);
             updateInterval = null;

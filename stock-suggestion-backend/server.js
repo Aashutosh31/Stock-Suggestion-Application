@@ -11,7 +11,8 @@ import './config/passport.js';
 // --- 1. IMPORT THE CORRECT WS MODULES ---
 import { WebSocketServer } from 'ws';
 import { handleConnection } from './core/websocket.js';
-import { scheduleRealTimeUpdates } from './services/stockService.js';
+// We don't need to import scheduleRealTimeUpdates here,
+// it's handled by core/websocket.js and stockService.js
 
 const app = express();
 
@@ -41,11 +42,8 @@ mongoose.connect(process.env.MONGO_URL)
     wss.on('connection', (ws) => {
         handleConnection(ws); // Use the handler from core/websocket.js
     });
-
-    // Start the real-time scheduler from stockService
-    scheduleRealTimeUpdates(); 
     
-    console.log("✅ Real-time WebSocket service initialized.");
+    console.log("✅ Real-time WebSocket service initialized and waiting for connections.");
 
   })
   .catch(console.error);

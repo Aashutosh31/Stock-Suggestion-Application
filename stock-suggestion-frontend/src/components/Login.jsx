@@ -1,9 +1,10 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react'; // 'use' was an error, should be useState
 import toast from 'react-hot-toast';
 import { Link , useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // <-- 1. IMPORT useAuth
 
 // Base URL for the backend API
-const API_BASE_URL = 'https://stock-suggestion-app.onrender.com'; 
+const API_BASE_URL = 'http://localhost:5000'; 
 
 const Login = () => {
     // State to hold form data
@@ -12,13 +13,14 @@ const Login = () => {
         password: '',
     });
     const navigate = useNavigate();
+    const { login } = useAuth(); // <-- 2. GET THE login FUNCTION FROM CONTEXT
 
     const { email, password } = formData;
 
     const onChange = e => 
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
-const onSubmit = async (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
 
         try {
@@ -33,19 +35,19 @@ const onSubmit = async (e) => {
             if (res.ok) {
                 toast.success(`Welcome back, ${data.user.name}!`);
                 
-                // 🔥 CRITICAL FIX: SAVE THE JWT TOKEN
-                if (data.token) {
-                    localStorage.setItem('token', data.token); 
-                    console.log("Login successful. Token saved.");
-                }
+                // --- 3. THIS IS THE FIX ---
+                // Call the context login function. This will:
+                // 1. Save the token to localStorage
+                // 2. Set user state
+                // 3. Set isAuthenticated = true IMMEDIATELY
+                login(data.token, data.user);
+                // -------------------------
                 
                 navigate('/dashboard'); 
             } else {
-                // Show specific backend errors (e.g., 'Invalid Credentials')
                 toast.error(data.msg || 'Login failed. Please check your details.');
             }
         } catch (err) {
-            // Show network/server connection errors
             toast.error('Could not connect to the server.');
             console.error(err);
         }
@@ -89,7 +91,6 @@ const onSubmit = async (e) => {
                             <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                                 Password
                             </label>
-                            {/* Forgot Password option as per the proposal */}
                             <Link to="#" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition duration-200">
                                 Forgot Password?
                             </Link>
@@ -115,7 +116,7 @@ const onSubmit = async (e) => {
                     </button>
                 </form>
 
-                {/* Google OAuth Option */}
+                {/* (Rest of the file is the same) */}
                 <div className="text-center text-sm space-y-4">
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
@@ -129,7 +130,6 @@ const onSubmit = async (e) => {
                     </div>
 
                     <button
-                        // Placeholder for Google Auth (A future requirement for login)
                         className="w-full flex items-center justify-center h-12 gap-3 py-0 px-4 border border-gray-600 rounded-lg shadow-sm text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300"
                     >
                        <svg
@@ -147,7 +147,6 @@ const onSubmit = async (e) => {
                         <span className="select-none align-middle leading-none">Login with Google</span>
                     </button>
                     
-                    {/* Register Link */}
                     <p className="text-gray-400">
                         Don't have an account?{' '}
                         <Link to="/register" className="font-medium text-cyan-400 hover:text-cyan-300 transition duration-200">

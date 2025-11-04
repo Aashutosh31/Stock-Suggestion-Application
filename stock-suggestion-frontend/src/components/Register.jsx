@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
-const API_BASE_URL = 'http://localhost:5000'; 
+const API_BASE_URL = 'https://stock-suggestion-app.onrender.com'; 
 
 const Register = () => {
     // State to hold form data

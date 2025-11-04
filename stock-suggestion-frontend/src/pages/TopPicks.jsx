@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../layout/DashboardLayout';
 import { motion } from 'framer-motion';
 
-const MERN_API_BASE_URL = 'http://localhost:5000'; 
+const MERN_API_BASE_URL = 'https://stock-suggestion-app.onrender.com'; 
 
 /**
  * Fallback fetch for the initial Top Picks list if WebSocket hasn't connected yet.

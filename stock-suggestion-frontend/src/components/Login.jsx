@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Link , useNavigate } from 'react-router-dom';
 
 // Base URL for the backend API
-const API_BASE_URL = 'http://localhost:5000'; 
+const API_BASE_URL = 'https://stock-suggestion-app.onrender.com'; 
 
 const Login = () => {
     // State to hold form data

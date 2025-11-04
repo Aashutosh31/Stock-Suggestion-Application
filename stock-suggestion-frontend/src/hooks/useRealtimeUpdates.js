@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
-const WS_URL = 'ws://localhost:5000';
+const WS_URL = 'ws://https://stock-suggestion-app.onrender.com';
 
 /**
  * Custom hook to connect to the stock WebSocket server

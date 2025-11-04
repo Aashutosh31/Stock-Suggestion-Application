@@ -34,8 +34,12 @@ const TickerSearch = ({ initialSymbol }) => {
         const upperSymbol = symbol.toUpperCase();
         setSearchQuery(upperSymbol);
         setIsFocused(false);
-        // Navigate to the new dynamic detail page route
-        navigate(`/stock/${upperSymbol}`);
+        
+        // --- THIS IS THE FIX ---
+        // Navigate to the Dashboard using a query parameter,
+        // which the Dashboard page is designed to read.
+        navigate(`/dashboard?symbol=${upperSymbol}`);
+        // --- END FIX ---
     };
 
     const handleSearch = (e) => {

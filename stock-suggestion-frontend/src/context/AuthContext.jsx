@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
         navigate('/login');
     };
 
-    // This runs on app load/refresh to check if a token exists
+// This runs on app load/refresh to check if a token exists
     useEffect(() => {
         const verifyAuth = async () => {
             const token = localStorage.getItem('token');
@@ -39,16 +39,15 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
-            // Check if the Vercel variable is even set
             if (!API_BASE_URL) {
                 console.error("CRITICAL: VITE_API_BASE_URL is not defined.");
                 setLoading(false);
-                setIsAuthenticated(false); // Can't verify, log out.
+                setIsAuthenticated(false);
                 return;
             }
 
             try {
-                // Call our verification endpoint using the CORRECT URL
+                // Call our verification endpoint
                 const res = await fetch(`${API_BASE_URL}/api/auth/verify`, {
                     headers: {
                         'x-auth-token': token,
@@ -60,13 +59,18 @@ export const AuthProvider = ({ children }) => {
                     setUser(user);
                     setIsAuthenticated(true);
                 } else {
-                    // Token is invalid or expired (401 error)
+                    // Token is invalid or expired
                     localStorage.removeItem('token');
                     setIsAuthenticated(false);
                 }
             } catch (err) {
-                // If the server is just down, don't log the user out.
+                // --- THIS IS THE FIX ---
+                // If the fetch fails for ANY reason (e.g., server down, network error),
+                // you MUST log the user out to prevent an infinite loop.
                 console.error('Auth verification failed:', err);
+                localStorage.removeItem('token'); // <-- ADD THIS
+                setIsAuthenticated(false); // <-- ADD THIS
+                // --- END FIX ---
             } finally {
                 setLoading(false);
             }

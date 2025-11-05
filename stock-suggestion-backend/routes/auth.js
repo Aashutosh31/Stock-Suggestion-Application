@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser,updateProfile } from '../controllers/authController.js';
+import { registerUser, loginUser,updateProfile,forgotPassword,resetPassword } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js'; 
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
@@ -15,8 +15,9 @@ router.post('/register', registerUser);
 // @desc    Authenticate user & get token
 // @access  Public
 router.post('/login', loginUser); 
-router.put('/updateProfile', protect, updateProfile);
-
+router.put('/profile', protect, updateProfile);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 // --- ADD THIS NEW ROUTE ---
 // @route   GET /api/auth/verify
 // @desc    Verify user token and return user data

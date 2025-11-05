@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -128,5 +129,75 @@ export const updateProfile = async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+};
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            // For security, don't reveal that the user doesn't exist
+            return res.status(200).json({ msg: 'If an account with that email exists, a reset link has been sent.' });
+        }
+
+        // Create a reset token (valid for 1 hour)
+        const token = crypto.randomBytes(20).toString('hex');
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+        await user.save();
+
+        // Create the reset URL
+        const resetURL = `${process.env.CLIENT_URL}/reset-password/${token}`;
+
+        // --- DEVELOPMENT ONLY ---
+        // In production, you would email this link.
+        // For now, we log it to the console.
+        console.log('PASSWORD RESET LINK (Copy/Paste this into your browser):');
+        console.log(resetURL);
+        // --- END DEVELOPMENT ---
+
+        res.status(200).json({ msg: 'If an account with that email exists, a reset link has been sent.' });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
+// --- 3. ADD THE resetPassword FUNCTION ---
+// @route   POST /api/auth/reset-password/:token
+// @desc    Reset password
+// @access  Public
+export const resetPassword = async (req, res) => {
+    try {
+        const { password } = req.body;
+
+        // Find user by token AND check if it's not expired
+        const user = await User.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Password reset token is invalid or has expired.' });
+        }
+
+        // Set the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        
+        // Clear the token fields
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        res.status(200).json({ msg: 'Password has been reset successfully.' });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
     }
 };

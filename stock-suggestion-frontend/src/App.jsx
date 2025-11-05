@@ -14,6 +14,8 @@ import Dashboard from './pages/Dashboard';
 import TrendsPage from './pages/TrendsPage';
 import WatchlistPage from './pages/WatchlistPage';
 import SettingsPage from './pages/SettingsPage';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 // --- END IMPORTS ---
 
 // --- PrivateRoute Component for protected routes ---
@@ -48,6 +50,8 @@ const App = () => {
                 <Route path="/login" element={<Login />} /> 
                 {/* Callback Route */}
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
                 
                 {/* Private Application Routes (Protected) */}
                 {/* --- UPDATE PRIVATE ROUTES --- */}

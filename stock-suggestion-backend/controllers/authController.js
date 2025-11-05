@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
+import { sendPasswordResetEmail } from '../services/emailService.js';
 
 dotenv.config();
 
@@ -137,27 +138,23 @@ export const forgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            // For security, don't reveal that the user doesn't exist
             return res.status(200).json({ msg: 'If an account with that email exists, a reset link has been sent.' });
         }
 
-        // Create a reset token (valid for 1 hour)
         const token = crypto.randomBytes(20).toString('hex');
         user.resetPasswordToken = token;
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
         await user.save();
 
-        // Create the reset URL
         const resetURL = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-        // --- DEVELOPMENT ONLY ---
-        // In production, you would email this link.
-        // For now, we log it to the console.
-        console.log('PASSWORD RESET LINK (Copy/Paste this into your browser):');
-        console.log(resetURL);
-        // --- END DEVELOPMENT ---
-
+        // --- 3. REMOVE THE CONSOLE LOGS AND SEND THE EMAIL ---
+        // console.log('PASSWORD RESET LINK...');
+        // console.log(resetURL);
+        
+        await sendPasswordResetEmail(user.email, resetURL);
+        // --- END OF CHANGE ---
         res.status(200).json({ msg: 'If an account with that email exists, a reset link has been sent.' });
 
     } catch (err) {

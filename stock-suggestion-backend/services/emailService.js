@@ -1,22 +1,16 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import 'dotenv/config';
 
-// 1. Create a "transporter" - this is the object that can send email
-const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE, // e.g., 'gmail'
-    auth: {
-        user: process.env.EMAIL_USER, // your-email@gmail.com
-        pass: process.env.EMAIL_PASS, // your-app-password
-    },
-});
+// 1. Set the API key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// 2. Create a reusable function to send the email
+// 2. Create the reusable function
 export const sendPasswordResetEmail = async (toEmail, resetURL) => {
-    const mailOptions = {
-        from: `"StockSuggest" <${process.env.EMAIL_USER}>`,
-        to: toEmail,
+    
+    const msg = {
+        to: toEmail, // The user's email
+        from: process.env.SENDGRID_FROM_EMAIL, // Your verified sender email
         subject: 'Your Password Reset Link',
-        // We send both a plain text and HTML version for email clients
         text: `You requested a password reset. Click this link to reset your password: ${resetURL}`,
         html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -32,11 +26,18 @@ export const sendPasswordResetEmail = async (toEmail, resetURL) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Password reset email sent to ${toEmail}`);
+        await sgMail.send(msg);
+        console.log(`Password reset email sent to ${toEmail} via SendGrid`);
     } catch (error) {
-        console.error(`Error sending email: ${error.message}`);
-        // We throw the error so the controller can handle it
+        console.error(`--- SENDGRID ERROR ---`);
+        console.error(`Error sending SendGrid email: ${error.message}`);
+        
+        // Log more details if available (e.g., "permission denied")
+        if (error.response) {
+            console.error(JSON.stringify(error.response.body, null, 2));
+        }
+        console.error(`--- END SENDGRID ERROR ---`);
+        
         throw new Error('Email could not be sent.');
     }
 };

@@ -3,6 +3,9 @@ import { registerUser, loginUser,updateProfile,forgotPassword,resetPassword } fr
 import { protect } from '../middleware/authMiddleware.js'; 
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
 

@@ -65,7 +65,7 @@ export const updateProfile = async (req, res) => {
     try {
         let user = await User.findByIdAndUpdate(req.user.id, { $set: updateFields }, { new: true }).select('-password');
         if (!user) {
-            return res.status(44).json({ msg: 'User not found' });
+            return res.status(404).json({ msg: 'User not found' });
         }
         res.json(user);
     } catch (err) {
@@ -86,10 +86,12 @@ export const forgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
 
         // If no user, send success message and do nothing.
+        // This prevents attackers from checking if an email is registered.
         if (!user) {
             return res.status(200).json({ msg: successMessage });
         }
 
+        // --- All database operations are in this try block ---
         const token = crypto.randomBytes(20).toString('hex');
         user.resetPasswordToken = token;
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
@@ -97,25 +99,27 @@ export const forgotPassword = async (req, res) => {
 
         const resetURL = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-        // --- NEW TRY/CATCH BLOCK ---
-        // We will try to send the email, but if it fails, 
-        // we will NOT crash the server. We'll just log the error.
+        // --- NEW INNER TRY/CATCH FOR EMAIL ---
+        // This will attempt to send the email.
+        // If it fails, it will NOT crash the server.
         try {
             await sendPasswordResetEmail(user.email, resetURL);
         } catch (emailError) {
-            // This is the CRITICAL part.
-            // Log the email error for you to debug, but don't tell the user.
+            // Log the error for you to debug on Render, but don't crash.
+            console.error(`--- EMAIL SERVICE FAILED ---`);
             console.error(`Failed to send password reset email to ${user.email}: ${emailError.message}`);
+            console.error(`--- END EMAIL SERVICE ERROR ---`);
         }
-        // --- END NEW TRY/CATCH ---
+        // --- END INNER TRY/CATCH ---
 
-        // Send the success message regardless of whether the email sent.
+        // Send the success message REGARDLESS of whether the email sent.
         // This stops the 500 error and fixes the server crash.
         res.status(200).json({ msg: successMessage });
 
     } catch (dbError) {
-        // This will only catch database errors (like failing to save the token)
+        // This will only catch DATABASE errors (like failing to save the token)
         console.error(`Database error during password reset: ${dbError.message}`);
+        // Only send 500 for a critical database failure
         res.status(500).send('Server error');
     }
 };

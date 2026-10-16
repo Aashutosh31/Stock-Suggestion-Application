@@ -160,3 +160,23 @@ ensure `CLIENT_ORIGIN` includes the web origin and `COOKIE_DOMAIN` is set.
 6. Verify `GET /health` returns `ok` and login works end-to-end (cookies set).
 7. Decide `MARKET_DATA_PROVIDER`: keep `demo` unless you accept Yahoo's unofficial/delayed data.
 8. Leave `MAIL_ENABLED` / `AI_EXPLAIN_ENABLED` off unless configured.
+
+## Showcase deployment (this project)
+
+This repository is deployed as a **portfolio / skills showcase**, so the following are intentionally
+**off / default**, and no paid services are used:
+
+| Setting | Value | Why |
+| ------- | ----- | --- |
+| `MARKET_DATA_PROVIDER` | `demo` | Deterministic, zero-credential, clearly labelled simulated data |
+| `MAIL_ENABLED` | `false` | Email verification / password reset intentionally disabled |
+| `AI_EXPLAIN_ENABLED` | `false` | No AI key required |
+| Admin role / custom domains | not configured | Not needed for the showcase |
+
+**Consequence of `MAIL_ENABLED=false`:** email verification and **self-service password reset are
+unavailable**. Explore the app with the shared demo account
+(`demo@nivesh.local` / `demo-access-nivesh-terminal`), or register a personal account with a
+password you remember.
+
+To promote this to a real product, flip these on and follow the sections above (add a free SMTP
+for password reset, choose a data provider, optionally add custom domains + `COOKIE_SAMESITE`).

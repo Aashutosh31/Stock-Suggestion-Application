@@ -11,6 +11,23 @@ React terminal UI.
 
 ---
 
+## Project scope — a skills showcase
+
+This is a **portfolio / skills-demonstration project**, and it ships in *showcase mode* by design:
+
+- **Market data:** the deterministic simulated **`demo`** provider — no paid or unofficial feeds,
+  no credentials required.
+- **Email (SMTP):** **disabled** (`MAIL_ENABLED=false`). Email verification and **password reset
+  are intentionally off** in this mode; the shared demo account has a fixed password, so every
+  feature can be explored without a mail provider.
+- **AI explanations:** disabled (`AI_EXPLAIN_ENABLED=false`).
+- **Admin console / custom domains:** not configured — not required for the showcase.
+
+Each of these is a config flip or a small drop-in if the app is ever run as a real product (see
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/MARKET_DATA.md](docs/MARKET_DATA.md)).
+
+---
+
 ## Market data — showcase mode → bring your own
 
 Every feature in this repo is **fully built and works end-to-end**. To showcase the product

@@ -95,8 +95,13 @@ the edge.
 
 ## Optional integrations
 
+> In the shipped **showcase deployment** both integrations below are intentionally **off**
+> (demo data, no SMTP, no AI key). See [DEPLOYMENT.md](DEPLOYMENT.md#showcase-deployment-this-project).
+
 - **Email** is disabled by default (`MAIL_ENABLED=false`); when disabled, reset/verification links
-  are logged locally and alert emails are marked "channel disabled".
+  are logged locally in development only and alert emails are marked "channel disabled". In
+  **production with mail off, self-service password reset is unavailable** — use the shared demo
+  account, or enable a free SMTP provider.
 - **AI explanation** is disabled by default (`AI_EXPLAIN_ENABLED=false`). When enabled, prompts are
   sent to **Groq** (`GROQ_API_KEY`) using the `openai/gpt-oss-120b` model; only the already-computed
   metric facts for a symbol are transmitted, and the model never invents prices, metrics or

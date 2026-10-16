@@ -27,9 +27,14 @@ operational checklist.
 | `nv_refresh` | yes | Refresh token |
 | `nv_csrf` | **no** (by design) | Double-submit CSRF token |
 
-Cookie attributes: `SameSite=Lax` in development, **`SameSite=Strict` in production**;
-`Secure` controlled by `COOKIE_SECURE` (must be `true` in production); optional `COOKIE_DOMAIN`;
-`path=/`.
+Cookie attributes: `SameSite=Lax` in development, **`SameSite=Strict` in production** (override
+with `COOKIE_SAMESITE`); `Secure` controlled by `COOKIE_SECURE` (must be `true` in production);
+optional `COOKIE_DOMAIN`; `path=/`.
+
+> **Split-domain deployments** (e.g. Vercel frontend + Render backend on different registrable
+> domains) are *cross-site*, so `SameSite=Strict`/`Lax` cookies will not be sent and login will
+> silently fail. Set **`COOKIE_SAMESITE=none`** (which also forces `Secure`). Prefer same-site
+> custom domains (`app.example.com` + `api.example.com`) so the default `Strict` stays in effect.
 
 ## CSRF protection
 

@@ -30,6 +30,9 @@ const envSchema = z.object({
   BCRYPT_ROUNDS: z.coerce.number().int().min(8).max(15).default(12),
   COOKIE_DOMAIN: optionalString,
   COOKIE_SECURE: boolFromString(false),
+  // Cross-site SPA+API deployments (e.g. Vercel frontend + Render backend) need "none".
+  // Omit to keep the safe default: "strict" in production, "lax" in development.
+  COOKIE_SAMESITE: z.enum(["lax", "strict", "none"]).optional(),
 
   CLIENT_ORIGIN: z.string().default("http://localhost:5173"),
 
@@ -89,6 +92,8 @@ if (isProduction) {
   if (data.JWT_REFRESH_SECRET.startsWith("replace-with")) problems.push("JWT_REFRESH_SECRET is still the placeholder value");
   if (data.JWT_ACCESS_SECRET === data.JWT_REFRESH_SECRET) problems.push("JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must differ");
   if (!data.COOKIE_SECURE) problems.push("COOKIE_SECURE must be true in production");
+  if (data.COOKIE_SAMESITE === "none" && !data.COOKIE_SECURE)
+    problems.push('COOKIE_SAMESITE="none" requires COOKIE_SECURE=true');
   if (problems.length) {
     // eslint-disable-next-line no-console
     console.error(`\n[config] Refusing to start in production:\n${problems.map((p) => `  - ${p}`).join("\n")}\n`);

@@ -6,11 +6,13 @@ export const ACCESS_COOKIE = "nv_access";
 export const REFRESH_COOKIE = "nv_refresh";
 export const CSRF_COOKIE = "nv_csrf";
 
+const cookieSameSite = env.COOKIE_SAMESITE ?? (env.isProduction ? "strict" : "lax");
+
 function baseCookieOptions(): CookieOptions {
   return {
     httpOnly: true,
-    secure: env.COOKIE_SECURE,
-    sameSite: env.isProduction ? "strict" : "lax",
+    secure: env.COOKIE_SECURE || cookieSameSite === "none",
+    sameSite: cookieSameSite,
     domain: env.COOKIE_DOMAIN && env.COOKIE_DOMAIN.length > 0 ? env.COOKIE_DOMAIN : undefined,
     path: "/",
   };
@@ -28,8 +30,8 @@ export function setAuthCookies(
   // Readable CSRF token for the double-submit cookie pattern (not httpOnly by design).
   res.cookie(CSRF_COOKIE, randomUUID(), {
     httpOnly: false,
-    secure: env.COOKIE_SECURE,
-    sameSite: env.isProduction ? "strict" : "lax",
+    secure: env.COOKIE_SECURE || cookieSameSite === "none",
+    sameSite: cookieSameSite,
     path: "/",
     maxAge: refreshTtlMs,
   });

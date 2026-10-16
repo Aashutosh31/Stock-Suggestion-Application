@@ -43,6 +43,27 @@ Browser ──TLS──► Reverse proxy ──┬── /            → client
 
 Set `TRUST_PROXY=true` behind the proxy so client IPs and rate limits are correct.
 
+### Split hosting (Render API + Vercel frontend)
+
+**Render — Web Service**
+- Root Directory: repo root (blank)
+- Build Command: `npm install && npm run build --workspace=server`
+- Start Command: `npm run start --workspace=server`
+- Health Check Path: `/health`
+- Env: `NODE_ENV=production`, `TRUST_PROXY=true`, `COOKIE_SECURE=true`,
+  `COOKIE_SAMESITE=none` (see note), `CLIENT_ORIGIN=https://<app>.vercel.app`,
+  `MONGODB_URI=<Atlas>`, and the two JWT secrets.
+
+**Vercel — Static / Vite project**
+- Root Directory: repo root (a root `vercel.json` supplies the rest)
+- Build Command: `npm run build --workspace=client`, Output: `client/dist`
+- Env (build-time): `VITE_API_BASE_URL=https://<api>.onrender.com/api/v1`
+
+> **Cookie note.** `vercel.app` and `onrender.com` are different *sites*, so use
+> `COOKIE_SAMESITE=none` (requires `COOKIE_SECURE=true`) or auth cookies won't be sent. Cleaner:
+> put both behind a shared custom domain (`app.example.com` + `api.example.com`) and keep the
+> default `strict`.
+
 ### Production guards
 
 Startup is **refused** when `NODE_ENV=production` and:
@@ -88,6 +109,7 @@ Legend: **R** = required, **O** = optional (has default), **S** = secret.
 | `BCRYPT_ROUNDS` | O | `12` | Password hash cost (8–15) |
 | `COOKIE_DOMAIN` | O | *(empty)* | Cookie domain (apex for subdomains) |
 | `COOKIE_SECURE` | O | `false` | **Must be `true` in production** |
+| `COOKIE_SAMESITE` | O | `strict` (prod) / `lax` (dev) | `lax` \| `strict` \| `none`; use `none` for cross-site (Vercel↔Render) |
 | `CLIENT_ORIGIN` | **R** | `http://localhost:5173` | CORS/origin allowlist (comma-separated) |
 | `MARKET_DATA_PROVIDER` | O | `demo` | `demo` \| `yahoo` |
 | `MARKET_DATA_TIMEOUT_MS` | O | `8000` | Provider request timeout |

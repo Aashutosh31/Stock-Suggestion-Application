@@ -104,15 +104,18 @@ async function exportData(req: Request, res: Response): Promise<void> {
   });
 }
 
-const preferencesSchema = z.object({
-  theme: z.enum(["dark", "light", "system"]).optional(),
-  timezone: z.string().min(1).max(64).optional(),
-  numberFormat: z.enum(["en-IN", "en-US"]).optional(),
-  dashboardSections: z.array(z.string().min(1).max(40)).max(20).optional(),
-  notifications: z
-    .object({ inApp: z.boolean().optional(), email: z.boolean().optional() })
-    .optional(),
-});
+const preferencesSchema = z
+  .object({
+    theme: z.enum(["dark", "light", "system"]).optional(),
+    timezone: z.string().min(1).max(64).optional(),
+    numberFormat: z.enum(["en-IN", "en-US"]).optional(),
+    dashboardSections: z.array(z.string().min(1).max(40)).max(20).optional(),
+    notifications: z
+      .object({ inApp: z.boolean().optional(), email: z.boolean().optional() })
+      .strict()
+      .optional(),
+  })
+  .strict();
 
 export const usersRouter = Router();
 
@@ -123,7 +126,7 @@ usersRouter.get(
 );
 usersRouter.patch(
   "/me",
-  validate({ body: z.object({ name: z.string().trim().min(2).max(80) }) }),
+  validate({ body: z.object({ name: z.string().trim().min(2).max(80) }).strict() }),
   asyncHandler(updateProfile),
 );
 usersRouter.patch(
@@ -134,6 +137,6 @@ usersRouter.patch(
 usersRouter.get("/me/export", asyncHandler(exportData));
 usersRouter.delete(
   "/me",
-  validate({ body: z.object({ password: z.string().min(1).max(128) }) }),
+  validate({ body: z.object({ password: z.string().min(1).max(128) }).strict() }),
   asyncHandler(deleteAccount),
 );

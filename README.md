@@ -11,6 +11,28 @@ React terminal UI.
 
 ---
 
+## Market data — showcase mode → bring your own
+
+Every feature in this repo is **fully built and works end-to-end**. To showcase the product
+without depending on a paid data license, it ships with a **deterministic simulated provider
+(`demo`)** — quotes, candles, fundamentals and news are generated deterministically and are
+clearly labelled "demo" in the UI. The `demo` data is **not live market data**.
+
+**You're good to go with your own data.** Clone the repo and, if you have a paid or otherwise
+reliable market-data source available, you only need to change the provider — the rest of the
+app (screener, scoring, portfolios, paper trading, alerts, charts, news) needs no changes.
+A live/delayed drop-in is already included:
+
+```bash
+MARKET_DATA_PROVIDER=yahoo   # live/delayed, unofficial — see docs/MARKET_DATA.md
+```
+
+For a licensed feed, implement the small provider interface in
+`server/src/modules/market/providers/` (`quotes`, `history`, `search`, `fundamentals`, `news`,
+`health`) and register it. Everything downstream consumes the same interface.
+
+---
+
 ## Highlights
 
 - **Explainable suggestions** — a weighted scoring engine (momentum, technical, valuation,

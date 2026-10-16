@@ -4,7 +4,6 @@ import { env } from "./env.js";
 const redactPaths = [
   "req.headers.authorization",
   "req.headers.cookie",
-  "req.headers['x-admin-token']",
   "res.headers['set-cookie']",
   "password",
   "passwordHash",

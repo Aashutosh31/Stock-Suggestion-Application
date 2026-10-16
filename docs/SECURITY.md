@@ -51,7 +51,7 @@ layers mitigate it:
 - Strict **origin allowlist** from `CLIENT_ORIGIN` (comma-separated). Requests from unknown
   origins are rejected.
 - `credentials: true`; only the methods and headers the app actually needs are allowed
-  (`Content-Type`, `Authorization`, `x-admin-token`, `x-csrf-token`).
+  (`Content-Type`, `Authorization`, `x-csrf-token`).
 
 ## Hardening
 
@@ -60,8 +60,10 @@ layers mitigate it:
 - `x-powered-by` is disabled.
 - Request bodies are capped at **64 kb** (JSON and urlencoded).
 - **Rate limiting** — a global API limiter plus a stricter login limiter.
-- **Input validation** — every route validates params/query/body with **Zod**; unknown fields are
-  rejected.
+- **Input validation** — every mutating route validates params/query/body with **Zod**, and the
+  security-sensitive schemas (auth, profile, preferences) are `.strict()`, so unknown fields are
+  **rejected** rather than ignored (defence-in-depth against mass-assignment / privilege
+  escalation). Filters never reach Mongo as raw query objects — the screener filters in memory.
 - **Centralised error handling** — internal errors are logged server-side and returned as a
   generic message in production; details are never leaked.
 - **`trust proxy`** is opt-in (`TRUST_PROXY`) so IP-based limits are correct behind a proxy.

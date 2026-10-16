@@ -171,9 +171,7 @@ Both responses include a `disclaimer` and per-suggestion component breakdowns.
 
 ## Admin — `/admin`
 
-Session-authenticated admins, **or** a raw `x-admin-token` header matching
-`ADMIN_DIAGNOSTICS_TOKEN` (when set). When no token is configured, extended diagnostics stay
-locked.
+Available only to authenticated users with the `admin` role.
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |

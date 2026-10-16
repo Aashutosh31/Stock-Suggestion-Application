@@ -10,18 +10,14 @@ import { metricsSnapshot } from "../../middlewares/metrics.js";
 import { marketService } from "../market/market.service.js";
 import { isMailEnabled } from "../notifications/mail.service.js";
 
-/** Allows access with either an admin account or the configured diagnostics token. */
-function requireAdminAccess(req: import("express").Request, _res: import("express").Response, next: import("express").NextFunction) {
-  const token = req.get("x-admin-token");
-  const configured = env.ADMIN_DIAGNOSTICS_TOKEN;
-  const tokenOk = Boolean(configured) && token === configured;
-  const userOk = req.user?.role === "admin";
-  if (!tokenOk && !userOk) return next(AppError.forbidden("Administrator access required"));
+/** Restricts access to authenticated users with the admin role. */
+function requireAdmin(req: import("express").Request, _res: import("express").Response, next: import("express").NextFunction) {
+  if (req.user?.role !== "admin") return next(AppError.forbidden("Administrator access required"));
   next();
 }
 
 export const adminRouter = Router();
-adminRouter.use(optionalAuth, requireAdminAccess);
+adminRouter.use(optionalAuth, requireAdmin);
 
 adminRouter.get(
   "/health",
@@ -58,7 +54,6 @@ adminRouter.get(
         jwtRefreshSecret: Boolean(env.JWT_REFRESH_SECRET),
         smtp: isMailEnabled(),
         aiExplain: env.AI_EXPLAIN_ENABLED && Boolean(env.GROQ_API_KEY),
-        adminToken: Boolean(env.ADMIN_DIAGNOSTICS_TOKEN),
         secureCookies: env.COOKIE_SECURE,
       },
       clientOrigins: env.clientOrigins,

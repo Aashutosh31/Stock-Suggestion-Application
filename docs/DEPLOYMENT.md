@@ -135,7 +135,6 @@ Legend: **R** = required, **O** = optional (has default), **S** = secret.
 | `RATE_LIMIT_WINDOW_MS` | O | `900000` | Global rate-limit window |
 | `RATE_LIMIT_MAX` | O | `300` | Global max requests/window |
 | `LOGIN_RATE_LIMIT_MAX` | O | `10` | Login attempts/window |
-| `ADMIN_DIAGNOSTICS_TOKEN` | O/S | — | Unlocks `/admin/*` via `x-admin-token` |
 
 ## Environment reference — Frontend (`client`)
 

@@ -61,8 +61,6 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(1000).default(900_000),
   RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(300),
   LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(10),
-
-  ADMIN_DIAGNOSTICS_TOKEN: optionalString,
 });
 
 export type AppEnv = z.infer<typeof envSchema> & {

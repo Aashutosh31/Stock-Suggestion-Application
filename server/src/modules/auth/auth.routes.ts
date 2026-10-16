@@ -24,14 +24,14 @@ export const authRouter = Router();
 authRouter.post(
   "/register",
   authLimiter,
-  validate({ body: z.object({ email, name: z.string().trim().min(2).max(80), password }) }),
+  validate({ body: z.object({ email, name: z.string().trim().min(2).max(80), password }).strict() }),
   asyncHandler(controller.register),
 );
 
 authRouter.post(
   "/login",
   authLimiter,
-  validate({ body: z.object({ email, password: z.string().min(1).max(128) }) }),
+  validate({ body: z.object({ email, password: z.string().min(1).max(128) }).strict() }),
   asyncHandler(controller.login),
 );
 
@@ -44,10 +44,12 @@ authRouter.post(
   "/password/change",
   requireAuth,
   validate({
-    body: z.object({
-      currentPassword: z.string().min(1).max(128),
-      newPassword: password,
-    }),
+    body: z
+      .object({
+        currentPassword: z.string().min(1).max(128),
+        newPassword: password,
+      })
+      .strict(),
   }),
   asyncHandler(controller.changePassword),
 );
@@ -55,19 +57,19 @@ authRouter.post(
 authRouter.post(
   "/password/forgot",
   authLimiter,
-  validate({ body: z.object({ email }) }),
+  validate({ body: z.object({ email }).strict() }),
   asyncHandler(controller.forgotPassword),
 );
 
 authRouter.post(
   "/password/reset",
   authLimiter,
-  validate({ body: z.object({ token: z.string().min(10).max(256), password }) }),
+  validate({ body: z.object({ token: z.string().min(10).max(256), password }).strict() }),
   asyncHandler(controller.resetPassword),
 );
 
 authRouter.post(
   "/verify-email",
-  validate({ body: z.object({ token: z.string().min(10).max(256) }) }),
+  validate({ body: z.object({ token: z.string().min(10).max(256) }).strict() }),
   asyncHandler(controller.verifyEmail),
 );

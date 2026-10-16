@@ -47,9 +47,12 @@ Set `TRUST_PROXY=true` behind the proxy so client IPs and rate limits are correc
 
 **Render — Web Service**
 - Root Directory: repo root (blank)
-- Build Command: `npm install && npm run build --workspace=server`
+- Build Command: `npm install --include=dev && npm run build --workspace=server`
 - Start Command: `npm run start --workspace=server`
 - Health Check Path: `/health`
+
+> `--include=dev` is required: `NODE_ENV=production` is set on the service, and npm otherwise
+> omits devDependencies — which include the TypeScript compiler and `@types/node` needed to build.
 - Env: `NODE_ENV=production`, `TRUST_PROXY=true`, `COOKIE_SECURE=true`,
   `COOKIE_SAMESITE=none` (see note), `CLIENT_ORIGIN=https://<app>.vercel.app`,
   `MONGODB_URI=<Atlas>`, and the two JWT secrets.

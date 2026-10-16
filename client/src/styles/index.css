@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+/* ── daisyUI custom themes ───────────────────────────────────────────── */
+@plugin "daisyui" {
+  themes: false;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "nivesh";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #0b0f17;
+  --color-base-200: #121826;
+  --color-base-300: #1b2333;
+  --color-base-content: #e8ecf4;
+  --color-primary: #7c5cff;
+  --color-primary-content: #ffffff;
+  --color-secondary: #22d3ee;
+  --color-secondary-content: #04121a;
+  --color-accent: #34d399;
+  --color-accent-content: #04140d;
+  --color-neutral: #1b2333;
+  --color-neutral-content: #cbd5e1;
+  --color-info: #38bdf8;
+  --color-info-content: #04121a;
+  --color-success: #34d399;
+  --color-success-content: #04140d;
+  --color-warning: #f59e0b;
+  --color-warning-content: #1a1204;
+  --color-error: #f43f5e;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.6rem;
+  --radius-field: 0.6rem;
+  --radius-box: 0.9rem;
+  --border: 1px;
+}
+
+@plugin "daisyui/theme" {
+  name: "nivesh-light";
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #f6f7fb;
+  --color-base-200: #ffffff;
+  --color-base-300: #e9ecf4;
+  --color-base-content: #0f172a;
+  --color-primary: #5b3df5;
+  --color-primary-content: #ffffff;
+  --color-secondary: #0891b2;
+  --color-secondary-content: #ffffff;
+  --color-accent: #059669;
+  --color-accent-content: #ffffff;
+  --color-neutral: #e2e6ef;
+  --color-neutral-content: #1f2937;
+  --color-info: #0284c7;
+  --color-info-content: #ffffff;
+  --color-success: #059669;
+  --color-success-content: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-content: #ffffff;
+  --color-error: #e11d48;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.6rem;
+  --radius-field: 0.6rem;
+  --radius-box: 0.9rem;
+  --border: 1px;
+}
+
+/* ── Design tokens (theme-aware) ─────────────────────────────────────── */
+:root,
+[data-theme="nivesh"] {
+  --nv-bg: #0b0f17;
+  --nv-bg-elevated: #0e131d;
+  --nv-surface: #121826;
+  --nv-surface-2: #161d2d;
+  --nv-surface-3: #1b2333;
+  --nv-border: #232c40;
+  --nv-border-strong: #33405a;
+  --nv-text: #e8ecf4;
+  --nv-text-muted: #909cb4;
+  --nv-text-subtle: #667089;
+  --nv-brand: #7c5cff;
+  --nv-brand-soft: rgba(124, 92, 255, 0.14);
+  --nv-accent: #22d3ee;
+  --nv-up: #34d399;
+  --nv-up-soft: rgba(52, 211, 153, 0.13);
+  --nv-down: #f43f5e;
+  --nv-down-soft: rgba(244, 63, 94, 0.13);
+  --nv-warn: #f59e0b;
+  --nv-warn-soft: rgba(245, 158, 11, 0.14);
+  --nv-info: #38bdf8;
+  --nv-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  --nv-grid: rgba(255, 255, 255, 0.04);
+  color-scheme: dark;
+}
+
+[data-theme="nivesh-light"] {
+  --nv-bg: #f6f7fb;
+  --nv-bg-elevated: #eef0f7;
+  --nv-surface: #ffffff;
+  --nv-surface-2: #f7f8fc;
+  --nv-surface-3: #eef1f8;
+  --nv-border: #e2e6ef;
+  --nv-border-strong: #cbd3e2;
+  --nv-text: #0f172a;
+  --nv-text-muted: #5b6478;
+  --nv-text-subtle: #8b94a9;
+  --nv-brand: #5b3df5;
+  --nv-brand-soft: rgba(91, 61, 245, 0.1);
+  --nv-accent: #0891b2;
+  --nv-up: #059669;
+  --nv-up-soft: rgba(5, 150, 105, 0.1);
+  --nv-down: #e11d48;
+  --nv-down-soft: rgba(225, 29, 72, 0.09);
+  --nv-warn: #d97706;
+  --nv-warn-soft: rgba(217, 119, 6, 0.12);
+  --nv-info: #0284c7;
+  --nv-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 14px 36px -18px rgba(15, 23, 42, 0.28);
+  --nv-grid: rgba(15, 23, 42, 0.05);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--nv-bg);
+  --color-bg-elevated: var(--nv-bg-elevated);
+  --color-surface: var(--nv-surface);
+  --color-surface-2: var(--nv-surface-2);
+  --color-surface-3: var(--nv-surface-3);
+  --color-line: var(--nv-border);
+  --color-line-strong: var(--nv-border-strong);
+  --color-ink: var(--nv-text);
+  --color-muted: var(--nv-text-muted);
+  --color-subtle: var(--nv-text-subtle);
+  --color-brand: var(--nv-brand);
+  --color-brand-soft: var(--nv-brand-soft);
+  --color-accent2: var(--nv-accent);
+  --color-up: var(--nv-up);
+  --color-up-soft: var(--nv-up-soft);
+  --color-down: var(--nv-down);
+  --color-down-soft: var(--nv-down-soft);
+  --color-warn: var(--nv-warn);
+  --color-warn-soft: var(--nv-warn-soft);
+  --color-info2: var(--nv-info);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.65rem;
+  --radius-lg: 0.9rem;
+  --radius-xl: 1.15rem;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    border-color: var(--nv-border);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--nv-bg);
+    color: var(--nv-text);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--nv-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: var(--nv-brand);
+    color: #fff;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--nv-border-strong);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+}
+
+/* ── Utilities ───────────────────────────────────────────────────────── */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@utility card-surface {
+  background-color: var(--nv-surface);
+  border: 1px solid var(--nv-border);
+  border-radius: var(--radius-lg);
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, var(--nv-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--nv-grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility focus-ring {
+  outline: 2px solid var(--nv-brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes nv-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-fade-up {
+  animation: nv-fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nv-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--nv-surface-2);
+}
+@utility skeleton-shine {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    animation: nv-shimmer 1.6s infinite;
+  }
+}

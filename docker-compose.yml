@@ -1,0 +1,26 @@
+# Nivesh Terminal — local development services
+# Starts a MongoDB instance for local development.
+#
+#   docker compose up -d
+#
+# Connection string (matches server/.env.example):
+#   mongodb://127.0.0.1:27017/nivesh_terminal
+services:
+  mongo:
+    image: mongo:7
+    container_name: nivesh-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: nivesh_terminal
+    volumes:
+      - nivesh-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nivesh-mongo-data:

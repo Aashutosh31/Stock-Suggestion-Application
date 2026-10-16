@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Builds
+dist/
+build/
+*/dist/
+*/build/
+.vite/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test / coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Local data / dumps / mongo
+data/
+mongo-data/
+*.tar
+*.gz
+!.gitkeep
+
+# Keys / certs
+*.pem
+*.key
+*.crt
+!**/certs/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Cache
+.cache/
+.eslintcache
+*.tsbuildinfo
+tmp/
+temp/
+
+# misc generated
+.env.local
+*.pid

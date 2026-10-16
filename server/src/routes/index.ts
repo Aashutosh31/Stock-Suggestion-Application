@@ -1,0 +1,30 @@
+import { Router } from "express";
+import { authRouter } from "../modules/auth/auth.routes.js";
+import { usersRouter } from "../modules/users/users.routes.js";
+import { marketRouter } from "../modules/market/market.routes.js";
+import { stocksRouter } from "../modules/stocks/stocks.routes.js";
+import { screenerRouter } from "../modules/screener/screener.routes.js";
+import { suggestionsRouter } from "../modules/suggestions/suggestions.routes.js";
+import { watchlistsRouter } from "../modules/watchlists/watchlist.routes.js";
+import { portfolioRouter } from "../modules/portfolio/portfolio.routes.js";
+import { paperRouter } from "../modules/paper/paper.routes.js";
+import { alertsRouter } from "../modules/alerts/alert.routes.js";
+import { notificationsRouter } from "../modules/alerts/notifications.routes.js";
+import { researchRouter } from "../modules/research/research.routes.js";
+import { adminRouter } from "../modules/admin/admin.routes.js";
+
+export const apiRouter = Router();
+
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/users", usersRouter);
+apiRouter.use("/market", marketRouter);
+apiRouter.use("/stocks", stocksRouter);
+apiRouter.use("/screener", screenerRouter);
+apiRouter.use("/suggestions", suggestionsRouter);
+apiRouter.use("/watchlists", watchlistsRouter);
+apiRouter.use("/portfolios", portfolioRouter);
+apiRouter.use("/paper", paperRouter);
+apiRouter.use("/alerts", alertsRouter);
+apiRouter.use("/notifications", notificationsRouter);
+apiRouter.use("/research", researchRouter);
+apiRouter.use("/admin", adminRouter);

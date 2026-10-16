@@ -1,0 +1,37 @@
+{
+  "name": "nivesh-terminal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nivesh Terminal — a production-minded stock research and suggestion platform for Indian equities (NSE/BSE).",
+  "license": "MIT",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspace=server && npm run build --workspace=client",
+    "build:server": "npm run build --workspace=server",
+    "build:client": "npm run build --workspace=client",
+    "start": "npm run start --workspace=server",
+    "test": "npm run test --workspace=server && npm run test --workspace=client",
+    "test:server": "npm run test --workspace=server",
+    "test:client": "npm run test --workspace=client",
+    "lint": "npm run lint --workspace=server && npm run lint --workspace=client",
+    "typecheck": "npm run typecheck --workspace=server && npm run typecheck --workspace=client",
+    "seed": "npm run seed --workspace=server",
+    "format": "npm run format --workspace=server && npm run format --workspace=client"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "mongodb-memory-server@11.3.0": true
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
